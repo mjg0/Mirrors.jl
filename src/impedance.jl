@@ -165,8 +165,8 @@ function impedance(mirror::Mirror, f::Function=greens, singular::Bool=true)
     n = 4 * length(mirror)
     Z = Matrix{ComplexF64}(undef, n, n)
     # fill Z; have to use `collect` because @threads isn't mature yet :/
-    @inbounds @fastmath Threads.@threads for (i, patch1) in collect(enumerate(mirror))
-        for (j, patch2) in enumerate(mirror)
+    @inbounds @fastmath Threads.@threads for (j, patch2) in collect(enumerate(mirror))
+        for (i, patch1) in enumerate(mirror)
             Zblock = view(Z, 4i-3:4i, 4j-3:4j)
             if singular && i==j # main diagonal
                 singularblockfill!(f, Zblock, mirror, patch1)
