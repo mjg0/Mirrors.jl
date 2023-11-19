@@ -1,11 +1,11 @@
 export Mirror
 
-using Statistics, Interpolations, FFTW
+using Statistics, Interpolations, FFTW, Serialization
 
 
 
 @doc raw"""
-`noisy2dspline(len, n, rms, σ)`
+    noisy2dspline(len, n, rms, σ)
 
 Return a square CubicSplineInterpolation with side `len`, `n` points, RMS height `rms`, roughness determined by `σ`
 
@@ -72,7 +72,7 @@ struct Mirror <: AbstractVector{Patch}
     z::Function
     s::Function
     """
-    `Mirror(r, rings, z, s)`
+        Mirror(r, rings, z, s)
 
     Construct a `Mirror` of radius `r` with `rings` total rings, with `z` height and `s` surface Jacobian
 
@@ -88,7 +88,7 @@ struct Mirror <: AbstractVector{Patch}
         return new(a, rings, patches, z, s)
     end # function Mirror
     """
-    `Mirror(r, rings, rms, σ)`
+        Mirror(r, rings, rms, σ)
 
     Construct a `Mirror` of radius `r` with `rings` total rings, with roughness defined by `rms` and `σ`
 
@@ -113,15 +113,13 @@ struct Mirror <: AbstractVector{Patch}
         return Mirror(r, rings, z, s)
     end # function Mirror
     """
-    `Mirror(filename)`
-    
-    Construct a `Mirror` from a serialized file, possibly created with `write(filename, mirror)`
+        Mirror(io)
+        Mirror(filename)
+
+    Construct a `Mirror` from a serialized file or stream
     """
-    function Mirror(filename::AbstractString)
-        jldopen(filename, "r") do f
-            return f["mirror"]
-        end
-    end
+    Mirror(io::IO) = deserialize(io)
+    Mirror(filename::AbstractString) = deserialize(filename)
 end # struct Mirror
 
 
@@ -135,6 +133,5 @@ Base.setindex!(mirror::Mirror, v::Patch, args...) = setindex!(mirror.patches, v,
 
 
 
-# Serialize TODO: once JLD2 supports an IO, OR Serialization stabilizes, change this
-#Base.write(filename::AbstractString, mirror::Mirror) = jldsave(filename; mirror)
+# Write a mirror to a stream or file
 Base.write(io::IO, mirror::Mirror) = serialize(io, mirror)

@@ -110,6 +110,25 @@ using Test, Mirrors, Statistics, HCubature, LinearAlgebra
 
 
 
+    # Make sure that Mirror reading and writing works
+    @testset "Mirror I/O" begin
+        mirror = Mirror(1.2, 3, 0.4, 5)
+        # Electric field gives us means for a quick check
+        α = 0.67
+        λ = 8.9
+        E = electricfield(mirror, α, λ)
+        # Write
+        buf = IOBuffer()
+        write(buf, mirror)
+        # Read
+        seekstart(buf)
+        mirrorcopy = Mirror(buf)
+        # Check
+        @test electricfield(mirrorcopy, α, λ) == E
+    end
+
+
+
     # Test that the (r, θ)->(u, v) transform function works
     @testset "uvtransform" begin
         # Check that integrated total is correct
@@ -173,7 +192,6 @@ using Test, Mirrors, Statistics, HCubature, LinearAlgebra
         """
         function test_expectedintegral(mirror::Mirror, f::Function, expectedintegral::Real, singular::Bool, equalpatches::Bool)
             Z = impedance(mirror, (r1,θ1,z1,r2,θ2,z2)->f(r2,θ2,z2), singular)
-            areas = [0.0, 0.0, 0.0, 0.0]
             for s=1:4
                 area = 0.0
                 for i=1:length(mirror)
