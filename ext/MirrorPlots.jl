@@ -2,12 +2,21 @@ module MirrorPlots
 
 
 
-using Plots
+using Mirrors, Plots
 
 
 
 """
-Return the point (and its index) on `mirror` closest to `(r, th)`
+Generator that returns all `(m, n)` (annulus and patch) indices consituting a mirror for a given number of `rings`
+"""
+function mirrorindices(rings)
+    return ((m, n) for n=0:rings-1 for m=0:6*n+2)
+end
+
+
+
+"""
+Return the point (and its index) on `mirror` closest to `(r, θ)`
 
 The point is of the form `(r, θ, z)`, and the index corresponds to which point on the mirror it is.
 
@@ -26,9 +35,8 @@ end
 
 
 # Overload Plots.heatmap for Mirror
-function Plots.heatmap(mirror::Mirror, height::Union{AbstractVector{<:Real},Nothing}=nothing#;
-                       #resolution=200, color=:bluesreds, clims=nothing
-                       , kw...)
+function Plots.heatmap(mirror::Mirror, height::Union{AbstractVector{<:Real},Nothing}=nothing;
+                       resolution=200, color=:bluesreds, clims=nothing, kw...)
     height = height === nothing ? [z for (r,θ,z) in Iterators.flatten(mirror)] : height
     r = mirror.rings * mirror.a
     xs = ys = range(-r, r, length=resolution)

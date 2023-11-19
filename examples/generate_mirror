@@ -49,7 +49,7 @@ function main(args=ARGS)
     # Create and write mirror
     mirror = Mirror(r, n, rms, sigma)
     filename = @sprintf "mirror-%09.4f-%04i-%07.4f-%09.4f" r n rms sigma
-    write(mirror, filename)
+    write(filename, mirror)
 end
 
 
