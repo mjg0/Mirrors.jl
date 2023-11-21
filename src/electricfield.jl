@@ -21,8 +21,8 @@ See also [`impedance`](@ref), [`surfacecurrent`](@ref).
 """
 function electricfield(mirror::Mirror, α::Real, λ::Real=1.0;
                        beamprofile::Function=(r, θ)->1.0)
-    kx::T =  2π/λ*sin(α)
-    kz::T = -2π/λ*cos(α)
+    kx =  2π/λ*sin(α)
+    kz = -2π/λ*cos(α)
     return [begin
         X = r*cos(θ)*cos(α)-z*sin(α)
         Y = r*sin(θ)

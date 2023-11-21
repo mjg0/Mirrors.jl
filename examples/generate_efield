@@ -8,7 +8,7 @@ include("parser.jl")
 
 
 
-# Return a gaussian function of (r, θ) given a standard deviation
+# Return a gaussian function of (r, θ) centered at 0, 0 given a standard deviation
 function gaussian(σ)
     if σ == 0
         return (r, θ)->1
@@ -25,7 +25,7 @@ function main(args=ARGS)
                      description="Generate an electric field given an existing mirror " *
                                  "and write it to a file")
     # Create and write mirror
-    mirror = Mirror(filename("efield", argdict, false))
+    mirror = Mirror(filename("mirror", argdict, false))
     α = argdict["incident_angle"]*π/180
     σ = argdict["beam_sigma"]
     E = electricfield(mirror, α, beamprofile=gaussian(σ))
