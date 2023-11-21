@@ -77,8 +77,8 @@ function main(args=ARGS)
                             "file name, it can be interrupted and restarted an arbitrary " *
                             "amount of times and still successfully generate `outfile`. " *
                             "Checkpoint files are cleaned up automatically")
-    infile = filename("mirror", argdict)
-    outfile = filename("impedance", argdict)
+    infile = filename("mirror", argdict, false)
+    outfile = filename("impedance", argdict, false)
     # Fill and write impedance
     writeimpedance(infile, outfile)
 end

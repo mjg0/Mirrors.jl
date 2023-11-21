@@ -15,7 +15,7 @@ function main(args=ARGS)
     # Create and write mirror
     mirror = Mirror(argdict["radius"], argdict["nrings"], argdict["roughness_rms"],
                     argdict["roughness_sigma"])
-    write(filename("mirror", argdict), mirror)
+    write(filename("mirror", argdict, false), mirror)
 end
 
 

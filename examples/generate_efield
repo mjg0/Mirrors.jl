@@ -1,0 +1,39 @@
+#!/usr/bin/env julia
+
+# Generate an electric field given an existing mirror file
+
+using Mirrors
+
+include("parser.jl")
+
+
+
+# Return a gaussian function of (r, θ) given a standard deviation
+function gaussian(σ)
+    if σ == 0
+        return (r, θ)->1
+    else
+        return (r, θ)->exp(-r^2/2σ^2)
+    end
+end
+
+
+
+function main(args=ARGS)
+    # Parse
+    argdict = parser(args, efield=true,
+                     description="Generate an electric field given an existing mirror " *
+                                 "and write it to a file")
+    # Create and write mirror
+    mirror = Mirror(filename("efield", argdict, false))
+    α = argdict["incident_angle"]*π/180
+    σ = argdict["beam_sigma"]
+    E = electricfield(mirror, α, beamprofile=gaussian(σ))
+    write(filename("efield", argdict, true), E)
+end
+
+
+
+if abspath(PROGRAM_FILE) == @__FILE__
+    main()
+end

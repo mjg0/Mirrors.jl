@@ -39,13 +39,13 @@ end
 
 
 
-function filename(prefix, argdict)
+function filename(prefix, argdict, efield)
     r     = argdict["radius"]
     n     = argdict["nrings"]
     rms   = argdict["roughness_rms"]
     sigma = argdict["roughness_sigma"]
     name = "$prefix-r$r-n$n-rms$rms-s$sigma"
-    if "beam_sigma" in keys(argdict)
+    if efield
         angle = argdict["radius"]
         beamsigma = argdict["radius"]
         name *= "-a$angle-bs$beamsigma"
