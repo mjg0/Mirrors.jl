@@ -1,38 +1,10 @@
 #!/usr/bin/env julia
 
-#SBATCH -t 60 --mem 250G --n 100 -N 1
-#SBATCH -q standby --requeue
+# Generate and write an impedance matrix file given an existing mirror file.
 
-# Generate and write an impedance matrix file given a mirror file.
+using Mirrors
 
-using Mirrors, ArgParse
-
-
-
-"""
-    parse(args)
-
-Parse command line arguments and return `infile` and `outfile`.
-"""
-function parse(args)
-    s = ArgParseSettings(description="Read a `Mirror` from `infile`, generate the
-                                      corresponding impedance matrix, and write it to
-                                      `outfile`.",
-                         epilog="Checkpointing occurs automatically--given the same output
-                                 file name, it can be interrupted and restarted an arbitrary
-                                 amount of times and still successfully generate `outfile`.
-                                 Checkpoint files are cleaned up automatically")
-    @add_arg_table s begin
-        "infile"
-            help = "an existing mirror file"
-            required = true
-        "outfile"
-            help = "the name of the impedance file to be written"
-            required = true
-    end
-    parsed = parse_args(args, s)
-    return parsed["infile"], parsed["outfile"]
-end
+include("parser.jl")
 
 
 
@@ -97,9 +69,16 @@ end
 
 function main(args=ARGS)
     # Parse
-    infile, outfile = parse(args)
-    # Alert if this job has been requeued
-    # TODO
+    argdict = parser(args, efield=false,
+                     description="Read a `Mirror` from `infile`, generate the " *
+                                 "corresponding impedance matrix, and write it to " *
+                                 "`outfile`.",
+                     epilog="Checkpointing occurs automatically--given the same output " *
+                            "file name, it can be interrupted and restarted an arbitrary " *
+                            "amount of times and still successfully generate `outfile`. " *
+                            "Checkpoint files are cleaned up automatically")
+    infile = filename("mirror", argdict)
+    outfile = filename("impedance", argdict)
     # Fill and write impedance
     writeimpedance(infile, outfile)
 end
@@ -109,5 +88,7 @@ end
 if abspath(PROGRAM_FILE) == @__FILE__
     main()
 end
+
+
 
 # TODO: figure out how to force threads never to yield so I can just spawn them all at once
