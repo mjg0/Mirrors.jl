@@ -31,13 +31,13 @@ mirror_job_id="$(     submit_array_job generate_mirror      "$mirror_params" \
 impedance_job_id="$(  submit_array_job generate_impedance   "$mirror_params" \
                                        -t 60 --mem 250G -N 1 -n 100 -d afterok:$mirror_job_id)"
 
-efield_job_id="$(     submit_array_job generate_efield      "$mirror_params $efield_params" \
+efield_job_id="$(     submit_array_job generate_efield      "$efield_params $mirror_params" \
                                        -t 1  --mem 1G               -d afterok:$mirror_job_id)"
 
-current_job_id="$(    submit_array_job generate_current     "$mirror_params $efield_params" \
+current_job_id="$(    submit_array_job generate_current     "$efield_params $mirror_params" \
                                        -t 60 --mem 500G -N 1 -n 120 -d afterok:$impedance_job_id:$efield_job_id)"
 
-reflectance_job_id="$(submit_array_job generate_reflectance "$mirror_params $efield_params" \
+reflectance_job_id="$(submit_array_job generate_reflectance "$efield_params $mirror_params" \
                                        -t 10 --mem 10G -d afterok:$current_job_id)"
 
 
