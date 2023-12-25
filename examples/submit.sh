@@ -20,7 +20,7 @@ submit_array_job() {
                                                        -J "$script" \
                                                        -o "$script-%A-%a.out" \
                                                        "$@" -- \
-                                                       julia --project "$dir/.." --threads auto "$dir/$script"
+                                                       julia --project="$dir/.." --threads=auto "$dir/$script"
 }
 
 
