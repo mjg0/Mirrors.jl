@@ -34,7 +34,7 @@ end
 
 
 
-# Overload Plots.heatmap for Mirror
+# Overload heatmap for Mirror
 function Plots.heatmap(mirror::Mirror, height::Union{AbstractVector{<:Real},Nothing}=nothing;
                        resolution=200, color=:bluesreds, clims=nothing, kw...)
     height = height === nothing ? [z for (r,θ,z) in Iterators.flatten(mirror)] : height
@@ -44,6 +44,16 @@ function Plots.heatmap(mirror::Mirror, height::Union{AbstractVector{<:Real},Noth
     minmax = max(abs.(z)...)
     clims = clims === nothing ? (-minmax-0.001, minmax+0.001) : clims
     heatmap(xs, ys, z; color=color, clims=clims, kw...)
+end
+
+
+
+# Overload heatmap for Reflectance
+function Plots.heatmap(refl::Reflectance; color=:bluesreds, clims=nothing, kw...)
+    xs = ys = range(-90, 90, length=first(size(refl))) # degrees are easier to understand
+    minmax = max(abs.(refl)...)
+    cl = clims === nothing ? (-minmax-sqrt(eps(Float64)), minmax+sqrt(eps(Float64))) : clims
+    heatmap(xs, ys, refl; color=color, clims=cl, kw...)
 end
 
 

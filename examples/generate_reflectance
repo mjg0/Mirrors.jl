@@ -1,0 +1,30 @@
+#!/usr/bin/env julia
+
+# Generate an electric field given an existing mirror file
+
+using Mirrors
+
+include("parser.jl")
+
+
+
+function main(args=ARGS)
+    # Parse
+    argdict = parser(args, efield=true,
+                     description="Generate surface current given an existing impedance " *
+                                 "matrix and electric field and write it to a file")
+    # Read in J and Z
+    println("Reading in mirror and J")
+    mirror = Mirror(filename("mirror", argdict, false))
+    J = reinterpret(ComplexF64, read(filename("current", argdict, true)))
+    # Create reflectance grid
+    println("Creating reflectance")
+    refl = Reflectance(mirror, J)
+    # Write out
+    write(filename("reflectance", argdict, true), refl)
+    println("Wrote outfile")
+end
+
+
+
+main()

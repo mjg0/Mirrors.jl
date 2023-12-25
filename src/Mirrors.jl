@@ -6,7 +6,7 @@ include("Patch.jl")
 include("Mirror.jl")
 include("electricfield.jl")
 include("impedance.jl")
-include("reflectance.jl")
+include("Reflectance.jl")
 
 
 
