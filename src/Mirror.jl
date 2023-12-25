@@ -1,6 +1,6 @@
 export Mirror
 
-using Statistics, Interpolations, FFTW, Serialization
+using Statistics, Interpolations, FFTW, Serialization, ImageFiltering
 
 
 
@@ -19,21 +19,37 @@ deviation--higher `σ` means higher-frequency roughness.
 - `σ`: standard deviation of roughness in frequency space
 """
 function noisy2dspline(len::Real, n::Integer, rms::Real, σ::Real)
-    # grid of points
-    x = range(-len/2, len/2, length=n)
-    y = range(-len/2, len/2, length=n)
-    # frequency-space grid
-    dk = 2π / n
-    k1d = 0.5*dk-π:dk:π # circshift(0.5*dk-π:dk:π, ceil(n/2))
-    k = k1d * reshape(k1d, (1, n))
-    # Fourier z
-    zf = fft(randn(n, n), (1, 2)) .* exp.(-k.^2/2/(σ*dk)^2)
-    # real component of inverse transform of `zf` is the collection of points
-    z = real(ifft(zf))
-    # return the resultant spline interpolation, correcting RMS and zeroing the average surface height
-    offset = mean(z)
-    zrms = sqrt(sum((z.-offset).^2)) / n
-    return cubic_spline_interpolation((x, y), (z.-offset).*(rms/zrms))
+    # Create a random grid of appropriate size and standard deviation; big to prevent sharpness at edges
+    Z₀size = iseven(n) ? 2n : 2n-1
+    Z₀ = imfilter(rand(Z₀size, Z₀size).-0.5, Kernel.gaussian(σ*n/len))
+    Z = view(Z₀, 1+n÷2:Z₀size-n÷2, 1+n÷2:Z₀size-n÷2)
+    ## Bring average to zero
+    Z₀ .-= mean(Z)
+    # Set RMS appropriately
+    Z₀ .*= rms/sqrt(sum(z->z^2, Z))*n
+    # Return an appropriate interpolation
+    return interpolate(Z, BSpline(Cubic(Free(OnCell()))))
+
+
+
+
+
+
+    # # grid of points
+    # x = range(-len/2, len/2, length=n)
+    # y = range(-len/2, len/2, length=n)
+    # # frequency-space grid
+    # dk = 2π / n
+    # k1d = #= 0.5*dk-π:dk:π =# circshift(0.5*dk-π:dk:π, ceil(n/2))
+    # k = k1d * reshape(k1d, (1, n))
+    # # Fourier z
+    # zf = fft(randn(n, n), (1, 2)) .* exp.(-k.^2/2/(σ*dk)^2)
+    # # real component of inverse transform of `zf` is the collection of points
+    # z = real(ifft(zf))
+    # # return the resultant spline interpolation, correcting RMS and zeroing the average surface height
+    # offset = mean(z)
+    # zrms = sqrt(sum((z.-offset).^2)) / n
+    # return cubic_spline_interpolation((x, y), (z.-offset).*(rms/zrms))
 end
 
 
@@ -106,9 +122,18 @@ struct Mirror <: AbstractVector{Patch}
         z = (r, θ) -> 0
         s = (r, θ) -> 1
         if rms != 0
-            spline = noisy2dspline(2*r, 8*rings, rms, σ)
-            z = (r::Real, θ::Real) -> spline(r*cos(θ), r*sin(θ))
-            s = (r::Real, θ::Real) -> sqrt(1 + sum(Interpolations.gradient(spline, r*cos(θ), r*sin(θ)).^2))
+            # Interpolate with 8*rings points along each axis
+            n = 8*rings
+            # Make a supergrid and subgrid to prevent sharp edges
+            Z₀ = imfilter(rand(2n, 2n).-0.5, Kernel.gaussian(σ*n/2r))
+            Z = view(Z₀, 1+n÷2:2n-n÷2, 1+n÷2:2n-n÷2)
+            # Transform Z appropriately
+            Z₀ .-= mean(Z)
+            Z₀ .*= rms/sqrt(sum(z->z^2, Z))*n
+            # Interpoation that covers the area of the mirror
+            itp = scale(interpolate(Z, BSpline(Cubic(Free(OnCell())))), range(-r, r, n), range(-r, r, n))
+            z = (r::Real, θ::Real) -> itp(r*cos(θ), r*sin(θ))
+            s = (r::Real, θ::Real) -> sqrt(1 + sum(Interpolations.gradient(itp, r*cos(θ), r*sin(θ)).^2))
         end
         return Mirror(r, rings, z, s)
     end # function Mirror
