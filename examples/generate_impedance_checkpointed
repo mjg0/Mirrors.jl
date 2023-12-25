@@ -1,0 +1,94 @@
+#!/usr/bin/env julia
+
+# Generate and write an impedance matrix file given an existing mirror file.
+
+using Mirrors
+
+include("parser.jl")
+
+
+
+"""
+    writeimpedance(infile, outfile)
+
+Generate and write an impedance to `outfile` given a `Mirror` stored in `infile`.
+
+Checkpointing and resumption happens automatically.
+"""
+function writeimpedance(infile, outfile)
+    # Read in mirror
+    mirror = Mirror(infile)
+    n = 4 * length(mirror)
+    # Short circuit if the output file already exists and is the right size
+    if filesize(outfile) == n^2*sizeof(ComplexF64) return end
+    # How many slices have been written so far?
+    sliceswrittenfile = "$outfile.sliceswritten"
+    sliceswritten = isfile(sliceswrittenfile) ? read(sliceswrittenfile, Int) : zero(Int)
+    # Allocate result array
+    Z = Matrix{ComplexF64}(undef, n, n)
+    # Function to update the j'th set of 4 columns of Z
+    function updateslice(j)
+        @inbounds @fastmath for i in eachindex(mirror)
+            p1 = mirror[i]
+            p2 = mirror[j]
+            Zblock = view(Z, 4i-3:4i, 4j-3:4j)
+            if i==j # main diagonal
+                Mirrors.singularblockfill!(Mirrors.greens, Zblock, mirror, p1)
+            else    # off-diagonal
+                Mirrors.nonsingularblockfill!(Mirrors.greens, Zblock, mirror, p1, p2)
+            end
+        end
+    end
+    # Launch nthreads() workers to start
+    jbegin = sliceswritten+1
+    J = min(jbegin+Threads.nthreads(), length(mirror))
+    workers = [Threads.@spawn updateslice($j) for j in jbegin:J]
+    # Write output file and spawn new tasks as workers finish
+    open(outfile, "a") do f
+        # We'll start writing at the end of the last column
+        seek(f, sliceswritten*4*n*sizeof(ComplexF64))
+        for task in workers
+            # Wait for the next task
+            wait(task)
+            # Write out the completed slice
+            sliceswritten += 1
+            write(f, Z[:,4sliceswritten-3:4sliceswritten])
+            write(sliceswrittenfile, sliceswritten)
+            # Add work to the queue if any remains
+            if J < length(mirror)
+                J += 1
+                push!(workers, Threads.@spawn updateslice($J))
+            end
+        end
+    end
+    # Remove the checkpoint tracking file once we're done
+    rm(sliceswrittenfile)
+end
+
+
+
+function main(args=ARGS)
+    # Parse
+    argdict = parser(args, efield=false,
+                     description="Read a `Mirror` from `infile`, generate the " *
+                                 "corresponding impedance matrix, and write it to " *
+                                 "`outfile`.",
+                     epilog="Checkpointing occurs automatically--given the same output " *
+                            "file name, it can be interrupted and restarted an arbitrary " *
+                            "amount of times and still successfully generate `outfile`. " *
+                            "Checkpoint files are cleaned up automatically")
+    infile = filename("mirror", argdict, false)
+    outfile = filename("impedance", argdict, false)
+    # Fill and write impedance
+    writeimpedance(infile, outfile)
+end
+
+
+
+if abspath(PROGRAM_FILE) == @__FILE__
+    main()
+end
+
+
+
+# TODO: figure out how to force threads never to yield so I can just spawn them all at once

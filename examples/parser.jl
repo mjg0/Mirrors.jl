@@ -46,8 +46,8 @@ function filename(prefix, argdict, efield)
     sigma = argdict["roughness_sigma"]
     name = "$prefix-r$r-n$n-rms$rms-s$sigma"
     if efield
-        angle = argdict["radius"]
-        beamsigma = argdict["radius"]
+        angle = argdict["incident_angle"]
+        beamsigma = argdict["beam_sigma"]
         name *= "-a$angle-bs$beamsigma"
     end
     return name
