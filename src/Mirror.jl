@@ -4,56 +4,6 @@ using Statistics, Interpolations, FFTW, Serialization, ImageFiltering
 
 
 
-@doc raw"""
-    noisy2dspline(len, n, rms, σ)
-
-Return a square CubicSplineInterpolation with side `len`, `n` points, RMS height `rms`, roughness determined by `σ`
-
-Since roughness on real surfaces tends to fall off as a Gaussian at higher frequencies, an array of random numbers is
-generated, put through a Gaussian low-pass filter, and returned as a CubicSplineInterpolation. `σ` is the standard
-deviation--higher `σ` means higher-frequency roughness.
-
-- `len`: the side length of the square surface
-- `n`: dimension of the grid of points, which will have $n^2$ total points
-- `rms`: RMS height of the surface
-- `σ`: standard deviation of roughness in frequency space
-"""
-function noisy2dspline(len::Real, n::Integer, rms::Real, σ::Real)
-    # Create a random grid of appropriate size and standard deviation; big to prevent sharpness at edges
-    Z₀size = iseven(n) ? 2n : 2n-1
-    Z₀ = imfilter(rand(Z₀size, Z₀size).-0.5, Kernel.gaussian(σ*n/len))
-    Z = view(Z₀, 1+n÷2:Z₀size-n÷2, 1+n÷2:Z₀size-n÷2)
-    ## Bring average to zero
-    Z₀ .-= mean(Z)
-    # Set RMS appropriately
-    Z₀ .*= rms/sqrt(sum(z->z^2, Z))*n
-    # Return an appropriate interpolation
-    return interpolate(Z, BSpline(Cubic(Free(OnCell()))))
-
-
-
-
-
-
-    # # grid of points
-    # x = range(-len/2, len/2, length=n)
-    # y = range(-len/2, len/2, length=n)
-    # # frequency-space grid
-    # dk = 2π / n
-    # k1d = #= 0.5*dk-π:dk:π =# circshift(0.5*dk-π:dk:π, ceil(n/2))
-    # k = k1d * reshape(k1d, (1, n))
-    # # Fourier z
-    # zf = fft(randn(n, n), (1, 2)) .* exp.(-k.^2/2/(σ*dk)^2)
-    # # real component of inverse transform of `zf` is the collection of points
-    # z = real(ifft(zf))
-    # # return the resultant spline interpolation, correcting RMS and zeroing the average surface height
-    # offset = mean(z)
-    # zrms = sqrt(sum((z.-offset).^2)) / n
-    # return cubic_spline_interpolation((x, y), (z.-offset).*(rms/zrms))
-end
-
-
-
 """
     Mirror
 
