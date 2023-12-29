@@ -4,6 +4,26 @@ using Statistics, Interpolations, FFTW, Serialization, ImageFiltering
 
 
 
+# Magic bytes for special mirrors
+roughmirrorcode::UInt16 = 0x01
+
+
+
+"""
+    roughmirrorz_h(h, r)
+
+Return `z` and `s` functions given height array `h` and mirror radius `r`.
+"""
+function roughmirror_z_s(h::AbstractArray, r::Real)
+    span = range(-r, r, length=first(size(h)))
+    itp = scale(interpolate(h, BSpline(Cubic(Free(OnCell())))), span, span)
+    z = (r, θ) -> itp(r*cos(θ), r*sin(θ))
+    s = (r, θ) -> sqrt(1 + sum(Interpolations.gradient(itp, r*cos(θ), r*sin(θ)).^2))
+    return z, s
+end
+
+
+
 """
     Mirror
 
@@ -75,15 +95,13 @@ struct Mirror <: AbstractVector{Patch}
             # Interpolate with 8*rings points along each axis
             n = 8*rings
             # Make a supergrid and subgrid to prevent sharp edges
-            Z₀ = imfilter(rand(2n, 2n).-0.5, Kernel.gaussian(σ*n/2r))
-            Z = view(Z₀, 1+n÷2:2n-n÷2, 1+n÷2:2n-n÷2)
+            h₀ = imfilter(rand(2n, 2n).-0.5, Kernel.gaussian(σ*n/2r))
+            h = h₀[1+n÷2:2n-n÷2,1+n÷2:2n-n÷2]
             # Transform Z appropriately
-            Z₀ .-= mean(Z)
-            Z₀ .*= rms/sqrt(sum(z->z^2, Z))*n
-            # Interpoation that covers the area of the mirror
-            itp = scale(interpolate(Z, BSpline(Cubic(Free(OnCell())))), range(-r, r, n), range(-r, r, n))
-            z = (r::Real, θ::Real) -> itp(r*cos(θ), r*sin(θ))
-            s = (r::Real, θ::Real) -> sqrt(1 + sum(Interpolations.gradient(itp, r*cos(θ), r*sin(θ)).^2))
+            h .-= mean(h)
+            h .*= rms/sqrt(sum(x->x^2, h))*n
+            # z and s given h and r
+            z, s = roughmirror_z_s(h, r)
         end
         return Mirror(r, rings, z, s)
     end # function Mirror
@@ -91,9 +109,26 @@ struct Mirror <: AbstractVector{Patch}
         Mirror(io)
         Mirror(filename)
 
-    Construct a `Mirror` from a serialized file or stream
+    Construct a `Mirror` from a file or stream
     """
-    Mirror(io::IO) = deserialize(io)
+    function Mirror(io::IO)
+        a = read(io, Float64)
+        rings = read(io, Int64)
+        patches = Vector{Patch}(undef, length(collect(mirrorindices(rings))))
+        read!(io, patches)
+        if eof(io)
+            return new(a, rings, patches, (args...)->0, (args...)->1)
+        end
+        magicbytes = read(io, UInt16)
+        if magicbytes == roughmirrorcode
+            n = read(io, Int64)
+            height = Matrix{Float64}(undef, n, n)
+            z, s = roughmirror_z_s(height, a*rings)
+            return new(a, rings, patches, z, s)
+        else
+            throw(ErrorException("Mirror appears corrupt"))
+        end
+    end
     Mirror(filename::AbstractString) = deserialize(filename)
 end # struct Mirror
 
@@ -109,4 +144,14 @@ Base.setindex!(mirror::Mirror, v::Patch, args...) = setindex!(mirror.patches, v,
 
 
 # Write a mirror to a stream or file
-Base.write(io::IO, mirror::Mirror) = serialize(io, mirror)
+function Base.write(io::IO, mirror::Mirror)
+    byteswritten = (write(io, mirror.a)
+                   +write(io, mirror.rings)
+                   +write(io, mirror.patches))
+    if hasproperty(mirror.z, :itp)
+        byteswritten += (write(io, roughmirrorcode)
+                        +write(io, first(size(mirror.z.itp)))
+                        +write(io, [z for z in mirror.z.itp]))
+    end
+    return byteswritten
+end

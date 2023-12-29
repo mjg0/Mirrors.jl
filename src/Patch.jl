@@ -67,13 +67,13 @@ r  ----------
 ```
 """
 struct Patch <: AbstractVector{NTuple{3,Float64}}
+    m::UInt32
+    n::UInt32
     r::SVector{4,Float64}
     θ::SVector{4,Float64}
     z::SVector{4,Float64}
-    m::UInt32
-    n::UInt32
     """
-    `Patch(a, m, n, z)`
+        Patch(a, m, n, z)
 
     Construct a `Patch` corresponding to the patch determined by annular width `a`, patch `m`, and ring `n`
 
@@ -89,7 +89,19 @@ struct Patch <: AbstractVector{NTuple{3,Float64}}
         r  = @SVector [rminus,  rplus,   rplus,  rminus]
         θ  = @SVector [θminus, θminus, θplus, θplus]
         z_ = @SVector [z(r[1], θ[1]), z(r[2], θ[2]), z(r[3], θ[3]), z(r[4], θ[4])]
-        return new(r, θ, z_, m, n)
+        return new(m, n, r, θ, z_)
+    end
+
+    """
+        Patch(io::IO)
+    
+    Construct a `Patch` from an `IO`.
+    """
+    function Patch(io::IO)
+        m = read(io, UInt32)
+        n = read(io, UInt32)
+        r, θ, z = (SVector(ntuple(_->read(io, Float64), 4)) for _ in 1:3)
+        return new(m, n, r, θ, z)
     end
 end
 
@@ -104,4 +116,13 @@ function Base.setindex!(patch::Patch, v::NTuple{3,<:Real}, i)
     patch.r[i] = v[1]
     patch.θ[i] = v[2]
     patch.z[i] = v[3]
+end
+
+
+
+# Write a Patch to a stream
+function Base.write(io::IO, patch::Patch)
+    return (write(io, patch.m)
+           +write(io, patch.n)
+           +sum(data->write(io, elem for elem in data), (patch.r, patch.θ, patch.z)))
 end
