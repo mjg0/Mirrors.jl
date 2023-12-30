@@ -42,15 +42,17 @@ submit_array_job() {
 
 mirror_job_id="$(submit_array_job generate_mirror "$mirror_params" 5 1 2G)"
 
-impedance_job_id="$(submit_array_job generate_impedance "$mirror_params" 90 50 450G -d afterok:$mirror_job_id)"
+impedance_job_id="$(submit_array_job generate_impedance "$mirror_params" 90 40 350G -d afterok:$mirror_job_id)"
 
-efield_job_id="$(submit_array_job generate_efield "$efield_params $mirror_params" 5 1 2G -d afterok:$mirror_job_id)"
+efield_job_id="$(submit_array_job generate_efield "$efield_params $mirror_params" 5 1 1G -d afterok:$mirror_job_id)"
 
 current_job_id="$(submit_array_job generate_current "$efield_params $mirror_params" 90 128 500G \
                   -d afterok:$impedance_job_id:$efield_job_id)"
 
-reflectance_job_id="$(submit_array_job generate_reflectance "$efield_params $mirror_params" 30 1 2G \
+reflectance_job_id="$(submit_array_job generate_reflectance "$efield_params $mirror_params" 30 1 1G \
                       -d afterok:$current_job_id)"
+
+plot_job_id="$(submit_array_job generate_plots "$efield_params $mirror_params" 5 1 4G -d afterok:$reflectance_job_id)"
 
 
 
@@ -59,3 +61,4 @@ echo "Impedance job ID:      $impedance_job_id"
 echo "Electric field job ID: $efield_job_id"
 echo "Current job ID:        $current_job_id"
 echo "Reflectance job ID:    $reflectance_job_id"
+echo "Plotting job ID:       $plot_job_id"

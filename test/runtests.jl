@@ -112,7 +112,7 @@ using Test, Mirrors, Statistics, HCubature, LinearAlgebra
 
     # Make sure that Mirror reading and writing works
     @testset "Mirror I/O" begin
-        for args in ((1.1, 3, 0.1, 1), (1.2, 4))
+        for args in ((1.1, 3, 0.1, 1), (1.2, 4)) # Both flat and rough mirrors
             mirror = Mirror(args...)
             # Electric field gives us means for a quick check
             α = 0.67
@@ -126,6 +126,9 @@ using Test, Mirrors, Statistics, HCubature, LinearAlgebra
             mirrorcopy = Mirror(buf)
             # Check
             @test electricfield(mirrorcopy, α, λ) == E
+            z     = [z for patch in mirror     for z in patch.z]
+            zcopy = [z for patch in mirrorcopy for z in patch.z]
+            @test z == zcopy
         end
     end
 

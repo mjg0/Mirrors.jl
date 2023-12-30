@@ -18,7 +18,8 @@ function main(args=ARGS)
     Z = Matrix{ComplexF64}(undef, length(E), length(E))
     read!(filename("impedance", argdict, false), Z)
     # Solve
-    BLAS.set_num_threads(128)
+    slurmcpus = parse(Int, get(ENV, "SLURM_CPUS_ON_NODE", "4"))
+    BLAS.set_num_threads(slurmcpus)
     J = Z \ E
     # Write out
     write(filename("current", argdict, true), J)

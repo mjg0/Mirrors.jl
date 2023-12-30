@@ -123,13 +123,14 @@ struct Mirror <: AbstractVector{Patch}
         if magicbytes == roughmirrorcode
             n = read(io, Int64)
             height = Matrix{Float64}(undef, n, n)
+            read!(io, height)
             z, s = roughmirror_z_s(height, a*rings)
             return new(a, rings, patches, z, s)
         else
             throw(ErrorException("Mirror appears corrupt"))
         end
     end
-    Mirror(filename::AbstractString) = deserialize(filename)
+    Mirror(filename::AbstractString) = Mirror(open(filename))
 end # struct Mirror
 
 

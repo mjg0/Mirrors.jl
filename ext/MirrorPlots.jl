@@ -6,6 +6,14 @@ using Mirrors, Plots
 
 
 
+defaultcolor = palette([RGBA(0.1, 0, 0.7, 1),
+                        RGBA(1, 1, 1, 1),
+                        RGBA(0.7, 0, 0.1, 1)], 75)
+#defaultcolor = palette([:blue, :white, :red], 75)
+#defaultcolor = :bluesreds
+
+
+
 """
 Generator that returns all `(m, n)` (annulus and patch) indices consituting a mirror for a given number of `rings`
 """
@@ -36,20 +44,20 @@ end
 
 # Overload heatmap for Mirror
 function Plots.heatmap(mirror::Mirror, height::Union{AbstractVector{<:Real},Nothing}=nothing;
-                       resolution=200, color=:bluesreds, clims=nothing, kw...)
+                       resolution=200, color=defaultcolor, clims=nothing, kw...)
     height = height === nothing ? [z for (r,θ,z) in Iterators.flatten(mirror)] : height
     r = mirror.rings * mirror.a
     xs = ys = range(-r, r, length=resolution)
-    z = [x^2+y^2<r^2 ? height[closestpoint(mirror, sqrt(x^2+y^2), atan(y, x))[2]] : 0 for x in xs, y in ys]
+    z = [x^2+y^2<r^2 ? height[closestpoint(mirror, sqrt(x^2+y^2), atan(x, y))[2]] : 0 for x in xs, y in ys]
     minmax = max(abs.(z)...)
-    clims = clims === nothing ? (-minmax-0.001, minmax+0.001) : clims
+    clims = clims === nothing ? (-minmax-sqrt(eps(Float64)), minmax+sqrt(eps(Float64))) : clims
     heatmap(xs, ys, z; color=color, clims=clims, kw...)
 end
 
 
 
 # Overload heatmap for Reflectance
-function Plots.heatmap(refl::Reflectance; color=:bluesreds, clims=nothing, kw...)
+function Plots.heatmap(refl::Reflectance; color=defaultcolor, clims=nothing, kw...)
     xs = ys = range(-90, 90, length=first(size(refl))) # degrees are easier to understand
     minmax = max(abs.(refl)...)
     cl = clims === nothing ? (-minmax-sqrt(eps(Float64)), minmax+sqrt(eps(Float64))) : clims

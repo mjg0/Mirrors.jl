@@ -1,0 +1,73 @@
+#!/usr/bin/env julia
+
+# Generate an electric field given an existing mirror file
+
+using Mirrors, Plots
+
+include("parser.jl")
+
+
+
+makesubplot(args...; kw...) = heatmap(args...; aspect_ratio=:equal,
+                                               framestyle=:none,
+                                               xticks=false,
+                                               yticks=false,
+                                               colorbar=false,
+                                               kw...)
+
+
+
+function minmax_x_y_z(mirror::Mirror)
+    x, y, z = ntuple(_->Float64[], 3)
+    for f in (findmin, findmax)
+        (_, pidx), midx = f(p->f(p.z), mirror)
+        r, θ, h = mirror[midx][pidx]
+        push!(x, r*cos(θ))
+        push!(y, r*sin(θ))
+        push!(z, h)
+    end
+    return x, y, z
+end
+
+
+
+function main(args=ARGS)
+    # Parse
+    argdict = parser(args, efield=true,
+                     description="Generate a plot given an existing mirror, electric" *
+                                 "field, surface current, and reflectance")
+    ENV["GKSwstype"] = "100"
+    # Read in everything that will be plotted
+    mirror = Mirror(filename("mirror", argdict, false))
+    E = reinterpret(ComplexF64, read(filename("efield", argdict, true)))
+    J = reinterpret(ComplexF64, read(filename("current", argdict, true)))
+    refl = Reflectance(filename("reflectance", argdict, true))
+    # Generate subplots
+    x, y, z = minmax_x_y_z(mirror)
+    mirrorplot = makesubplot(mirror, title="Mirror")
+    if abs(z[1]-z[2]) > sqrt(eps(Float64))
+        for (i, color) in zip(eachindex(z), (:cyan, :magenta))
+            scatter!(mirrorplot, x[i:i], y[i:i], color=color, label=round(z[i], sigdigits=2),
+                     markersize=3, markerstrokewidth=0)
+        end
+    end
+    Eplot = makesubplot(mirror, real.(E), title="Electric field")
+    Jplot = makesubplot(mirror, real.(J), title="Surface current")
+    reflplot = makesubplot(refl, title="Reflectance")
+    # Generate and write rite overall plot
+    r = round(argdict["radius"], sigdigits=3)
+    n = argdict["nrings"]
+    rms = round(argdict["roughness_rms"], sigdigits=3)
+    σ = round(argdict["roughness_sigma"], sigdigits=3)
+    α = round(argdict["incident_angle"], sigdigits=3)
+    beamσ = round(argdict["beam_sigma"], sigdigits=3)
+    roughnesstitle = rms > 0 ? "roughness: RMS=$rms, σ=$σ; " : ""
+    beamtitle = "beam: angle=$α" * (σ > 0 ? ", σ=$beamσ" : "")
+    png(plot(mirrorplot, reflplot, Eplot, Jplot, size=(800, 800)), #,
+             #title="R=$r; N=$n; " * roughnesstitle * beamtitle),
+        filename("plots", argdict, true))
+end
+
+
+
+main()
