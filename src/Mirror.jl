@@ -36,8 +36,7 @@ area. The first ring of the mirror (the middle) is simply the inner circle of ra
 pie chart with 3 equal areas. The next is a ring of inner radius `a` and outer radius `2a`, which is split into 9
 patches of equal angular width. The next ring has 15 patches, the next 21, and so on.
 
-Since storing the array of `Patch`s is the main concern of `Mirror`, the `iterator` and `getindex` operators are
-overloaded for convenience:
+Since storing the array of `Patch`s is the main concern of `Mirror`, it is an `AbstractArray{Patch}`:
 
 ```julia-repl
 julia> m = Mirror(1, 1)

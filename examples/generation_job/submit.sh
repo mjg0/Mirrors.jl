@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dir="$(dirname "$0")"
+dir="$(dirname "$(dirname "$0")")"
 
 module purge
 module load julia parallel slurm-auto-array
