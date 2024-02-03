@@ -2,6 +2,12 @@
 
 
 
+# This script creates a plot named ldiv_vs_gmres.png showing the difference between using
+# left division (with a preconditioner) and using gmres (without a preconditioner) to solve
+# for surface current.
+
+
+
 using Mirrors, IterativeSolvers, LinearAlgebra, Statistics, Plots
 
 
