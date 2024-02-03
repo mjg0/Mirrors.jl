@@ -2,6 +2,9 @@
 
 # Generate and write an impedance matrix file given an existing mirror file.
 
+# TODO: I think the threaded slowness has to do with false sharing--the interpolation maybe
+#       needs to be copied to each thread, or maybe it can go on the stack somehow
+
 using Mirrors
 
 include("parser.jl")

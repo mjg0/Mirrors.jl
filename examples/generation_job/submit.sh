@@ -42,7 +42,7 @@ submit_array_job() {
 
 mirror_job_id="$(submit_array_job generate_mirror "$mirror_params" 5 1 2G)"
 
-impedance_job_id="$(submit_array_job generate_impedance "$mirror_params" 90 40 350G -d afterok:$mirror_job_id)"
+impedance_job_id="$(submit_array_job generate_impedance "$mirror_params" 120 20 350G -d afterok:$mirror_job_id)"
 
 efield_job_id="$(submit_array_job generate_efield "$efield_params $mirror_params" 5 1 1G -d afterok:$mirror_job_id)"
 
