@@ -1,4 +1,4 @@
-.PHONY: thesis all clean
+.PHONY: all thesis clean distclean
 
 all: thesis
 

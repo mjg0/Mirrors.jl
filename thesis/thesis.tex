@@ -74,7 +74,11 @@
 % Start regular page counting at page 1
 \mainmatter
 
-% OK. Everything is set up. Type your thesis here.
+
+
+
+
+% INTRO %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Introduction} \label{chap:intro}
 
@@ -82,11 +86,19 @@
 
 We don't have good models of how roughness affects reflectance (CITE). There's stuff that does well when the roughness is a lot bigger or smaller than the wavelength of incident light (CITE both); this is meant to fit between.
 
+
+
 \section{The Attempted Solution} \label{sec:attempted_solution}
 
 Made a computational model for circular rough mirrors. It's available on \href{https://github.com/mjg0/Mirrors.jl}{GitHub}.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+
+
+
+% MATH %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{The Math} \label{chap:math}
 
@@ -100,8 +112,8 @@ We obviously need an expected reflectance profile to make sure that what we're d
 
 Unfortunately I couldn't find an equation for diffraction through a \textit{tilted} circular aperture so I had to figure it out myself. An easy test of what I found is ensuring that whatever I come up with is identical to the circular aperture diffraction when the light comes in normal to the mirror, which is proportional to (CITE):
 
-\begin{equation}
-  \frac{2\J_1(kR\sin(\theta))}{kR\sin(\theta)}
+\begin{equation}\label{eq:airy}
+  \frac{\J_1(kR\sin(\theta))}{kR\sin(\theta)}
 \end{equation}
 
 \ldots where $k$ is the wave number, $\frac{2\pi}{\lambda}$ ($\lambda$ being the wavelength), $R$ is the radius of the aperture (mirror in our case), and $\theta$ is the angle at which the reflectance is measured. $J_1$ is the first order Bessel function of the first kind. This is the Airy pattern (CITE?).
@@ -125,7 +137,7 @@ Since we're concerned with reflectance in the far field, all we need to determin
     $d$ is the phase shift of light coming from $p$ relative to light coming from the origin.}
 \end{figure}
 
-$d$ is given by dotting the unit vector $\hat{u}$ with $-\vec{p}$ \ref{fig:phase_length}. $\hat{u}$ is $\left(\sin{\theta}\cos{\phi},\sin{\theta}\sin{\phi},\cos{\theta}\right)$, so $d$ is:
+$d$ is given by dotting the unit vector $\hat{u}$ with $-\vec{p}$ [\ref{fig:phase_length}]. $\hat{u}$ is $\left(\sin{\theta}\cos{\phi},\sin{\theta}\sin{\phi},\cos{\theta}\right)$, so $d$ is:
 
 \begin{equation}
   -x_p\sin{\theta}\cos{\phi}-y_p\sin{\theta}\sin{\phi}
@@ -169,15 +181,15 @@ For simplicity, we'll define $a$ and $b$ as:
 \subsubsection{Integrating}
 To find the total contribution to the far field from the entire mirror (of radius $R$) at some $\theta$ and $\phi$, we need to integrate this contribution over the entire surface:
 
-\begin{equation} \label{eq:integral1}
+\begin{equation}\label{eq:integral1}
   \int_0^{2\pi}\int_0^R e^{i(ar\cos(\Theta)+br\sin(\Theta))} rdrd\Theta
 \end{equation}
 
 \ldots where I subbed in $r\cos\Theta$ and $r\sin\Theta$ for $x$ and $y$ respectively.
 
-Due to my weak math skills, I used Mathematica to integrate this~\ref{chap:integral}. Turns out the solution is:
+Due to my weak math skills, I used Mathematica to integrate this [\ref{chap:integral}]. Turns out the solution is:
 
-\begin{equation}
+\begin{equation}\label{eq:expected_refl}
   \pi R^2 \pFq{0}{1}{}{2}{-\frac{R^2}{4}\left(a^2+b^2\right)}
 \end{equation}
 
@@ -187,28 +199,30 @@ Due to my weak math skills, I used Mathematica to integrate this~\ref{chap:integ
   \pi R^2 \pFq{0}{1}{}{2}{-\frac{\pi^2 R^2}{\lambda^2}\left(\sin^2\alpha+\sin^2\theta-2\sin\alpha\sin\theta\cos\phi\right)}
 \end{equation}
 
+As a quick check, when $\alpha$ is 0 (indicating normal incident light), this is proportional to equation \ref{eq:airy} as it should be [\ref{chap:airy_validation}].
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
 
-\chapter{The Code}\label{chap:code}
+
+% CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{The Code}\label{chap:code} % or maybe this should just be a subsection of "Methods"
 
 Talk about what the code does.
 
 Talk about tests that validate that it should work.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
 
 
+% APPENDICES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
-
-
-
-% Start labeling chapters with letters and calling them appendices
 \begin{appendices}
 
   \chapter{The Code}\label{chap:julia}
@@ -217,15 +231,27 @@ Talk about tests that validate that it should work.
   
   
   
-  \chapter{Integral of Equation~\ref{eq:integral1}}\label{chap:integral}
+  \chapter{Integral of Equation \ref{eq:integral1}}\label{chap:integral}
   
-  Integration was done using Mathematica 12.0.
+  Integration was done with Mathematica 13.1.0.
   
   \includegraphics[width=\textwidth]{nasty-integral.pdf}
   
   
   
+  \chapter{Simplification of Equation \ref{eq:expected_refl} Given Normal Light Incidence}\label{chap:airy_validation}
+  
+  Simplification was done with Mathematica 13.1.0.
+  
+  \includegraphics[width=\textwidth]{airy-simplification.pdf}
+  
 \end{appendices}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
 
 % Make the bibliography.
 % Enter your references in the BibTex file "references.bib"
