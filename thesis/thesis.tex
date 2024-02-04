@@ -102,7 +102,7 @@ Made a computational model for circular rough mirrors. It's available on \href{h
 
 \chapter{The Math} \label{chap:math}
 
-\section{Expected Results} \label{sec:expected_results}
+\section{Expected Reflectance} \label{sec:expected_results}
 
 We need to make sure that our results make sense--does our program predict correct reflectance even for a flat mirror? So we need to figure out an equation that gives us what we expect: given an incident angle, $\alpha$, how would an ideal mirror react? In the far field, what is the intesity (as predicted by physical optics) at a certain polar and azimuthal angle?
 
@@ -200,6 +200,150 @@ Due to my weak math skills, I used Mathematica to integrate this [\ref{chap:inte
 \end{equation}
 
 As a quick check, when $\alpha$ is 0 (indicating normal incident light), this is proportional to equation \ref{eq:airy} as it should be [\ref{chap:airy_validation}].
+
+
+
+\subsection{Electric Field at Surface}\label{chap:efield}
+
+The surface is composed of patches, each with 4 points. At each of these points the electric field is calculated as follows, assuming a plane wave of wavelenth $\lambda$ coming in at angle $\alpha$ from normal (direction of $z$) in the x-z plane:
+
+\begin{equation}
+  k_{x}=2\pi\lambda\cos\left(\alpha\right)
+\end{equation}
+
+\begin{equation}
+  k_{z}=-2\pi\lambda\sin\left(\alpha\right)
+\end{equation}
+
+\begin{equation}
+  E_{pt}=e^{i\left(k_{x}x+k_{z}z\right)}
+\end{equation}
+
+
+
+\subsection{Impedance Matrix}
+
+The impedance matrix is a square matrix whose dimension is the number of points on the surface. There are two main sections, the part representing the interaction between different patches and the part representing the interaction of a patch with itself. The same-patch portion of the matrix consists of the 4x4 blocks along the main diagonal (one block for each patch), and the different-patch portion is the rest.
+
+\subsubsection{Different patch}
+
+Since there's no chance of hitting a singularity when computing how two different patches interact, each non-singular interaction for points $i$ and $j$ can be calculated with:
+
+\begin{equation}
+  Z_{i,j}=\frac{\pi a}{12n_{j}+6}G\left(p_{i},p_{j}\right)r_{j}
+\end{equation}
+
+...where the first fraction is a Jacobian (see Circular Integration equation 22--I've subbed in $r_{j}$ for $a\left(n+\frac{1}{2}+\frac{1}{2\sqrt{3}}\right)$) and $G$ is the Green's function.
+
+\subsubsection{Same patch}
+This is a good bit harder because of the need to deal with singularities. In essence, for each annular patch we want to transform it into a square, then split that square up into 4 triangles with a common vertex at the point in question, then reduce the order of the singularity at that point by stretching the point into a line to get a square over which to integrate. Since we want to use HCubature to calculate the integral, we'll turn the triangular portion of the patch into a square from $(0,0)$ to $(1,1)$ and make it a function of two variables, we'll say $u$ and $v$ (see Circular Intregration sections 5.6 and 5.7):
+
+\begin{equation}
+  r\left(u,v\right)=B_{2,1}u+B_{2,2}uv\pm\frac{a}{2\sqrt{3}}+a\left(n+\frac{1}{2}\right)
+\end{equation}
+
+\begin{equation}
+  \theta\left(u,v\right)=\frac{2\pi}{a(6n+3)}\left(a\left(m+\frac{1}{2}\right)+B_{1,1}u+B_{1,2}uv\pm\frac{a}{2\sqrt{3}}\right)
+\end{equation}
+
+...where $B$ is a matrix that allows us to transform between a triangular
+piece of an annular patch and a square; in all there are 16 $B$ matrices,
+for 4 points with 4 corresponding triangles each (see Circular Integration
+subsection 5.5.1).
+
+It's easy enough to get a function of $u$ and $v$ from the function
+of $r$, $\theta$, and $z$ that we want to integrate:
+
+\begin{equation}
+  f\left(u,v\right)=f\left(r\left(u,v\right),\theta\left(u,v\right),z\left(r\left(u,v\right),\theta\left(u,v\right)\right)\right)
+\end{equation}
+
+For utility we'll define a transform function, which takes a point
+($r$, $\theta$, and $z$, with associated $n$ and $p$) and a function
+of that point and gives us a function of $u$ and $v$:
+
+\begin{equation}
+  T\left(f,p\right)=\left(u,v\right)\rightarrow r\left(u,v\right)f\left(u,v\right)
+\end{equation}
+
+With this transform function, we can calculate the integral of a function
+$f$ over a patch for a certain point $p$ ($H$ is hcubature):
+
+\begin{equation}
+  P\left(f,p\right)=\frac{2\pi}{a\left(6n+3\right)}\sum_{triangles}|det\left(B_{t}\right))|H\left(T\left(f,p\right)\right)_{0,0}^{1,1}
+\end{equation}
+
+The function that we want to look at is the Green's function of the
+point with another point:
+
+\begin{equation}
+  G\left(p_{1},p_{2}\right)=\frac{e^{ik\rho}}{4\pi\rho}
+\end{equation}
+
+...where $k$ is the wave number and $\rho$ is the distance between
+the two points. We can set the point in that we're integrating around
+(since $P$ requires a function of one point) and call it $G^{*}\left(p_{2}\right)$.
+
+We use this to figure out what each element of the 4x4 block corresponding
+to the patch should be using the math outlined in Circular Integration
+section 6.1:
+
+\begin{equation}
+  K_{1}=P\left(G^{*},p\right)
+\end{equation}
+
+\begin{equation}
+  K_{2}=P\left(G^{*}x_{p},p\right)
+\end{equation}
+
+\begin{equation}
+  K_{3}=P\left(G^{*}y_{p},p\right)
+\end{equation}
+
+\begin{equation}
+  K_{4}=P\left(G^{*}x_{p}y_{p},p\right)
+\end{equation}
+
+Now we can finally fill out this row of the block:
+
+\begin{equation}
+  Z_{s,s'}=\frac{K_{1}}{4}+\frac{\sqrt{3}}{2a}\left(-K_{2}-K_{3}\right)+\frac{3}{a^{2}}K_{4}
+\end{equation}
+
+\begin{equation}
+  Z_{s,s'+1}=\frac{K_{1}}{4}+\frac{\sqrt{3}}{2a}\left(-K_{2}+K_{3}\right)-\frac{3}{a^{2}}K_{4}
+\end{equation}
+
+\begin{equation}
+  Z_{s,s'+2}=\frac{K_{1}}{4}+\frac{\sqrt{3}}{2a}\left(K_{2}+K_{3}\right)+\frac{3}{a^{2}}K_{4}
+\end{equation}
+
+\begin{equation}
+  Z_{s,s'+3}=\frac{K_{1}}{4}+\frac{\sqrt{3}}{2a}\left(K_{2}-K_{3}\right)-\frac{3}{a^{2}}K_{4}
+\end{equation}
+
+...where $s$ is the index of this point ($p$) and $s'$ is the first
+index of the other patch. We repeat this 4 times to fill in each 4x4
+block on the main diagonal.
+
+
+
+\subsection{Reflectance}
+Once Z and E are figured out, J is just $Z\backslash E$. With J it's easy to calculate reflectance for a given $\theta$ (polar) and $\phi$ (azimuthal):
+
+\begin{equation}
+  R=\sum_{pts}J_{pt}e^{-ik\left(x\sin\left(\theta\right)\cos\left(\phi\right)+y\sin\left(\theta\right)\cos\left(\phi\right)+z\cos\left(\theta\right)\right)}
+\end{equation}
+
+The real part gives us the reflectance at infinity for a certain angle.
+
+
+
+\subsection{TODO}
+Need to account for surface normal in these equations for roughness
+
+Explain how the program works--how does math become code? What is the algorithm, at a high level?
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
