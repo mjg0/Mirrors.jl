@@ -1,4 +1,5 @@
 \documentclass[etd,oneside,senior]{BYUPhys}
+\usepackage{pdfpages}
 \graphicspath{{./figures}}
 \DeclareMathOperator{\J}{J}
 \DeclareMathOperator{\struveh}{H}
@@ -322,7 +323,7 @@ Now we can finally fill out this row of the block:
   Z_{s,s'+3}=\frac{K_{1}}{4}+\frac{\sqrt{3}}{2a}\left(K_{2}-K_{3}\right)-\frac{3}{a^{2}}K_{4}
 \end{equation}
 
-...where $s$ is the index of this point ($p$) and $s'$ is the first
+\ldots where $s$ is the index of this point ($p$) and $s'$ is the first
 index of the other patch. We repeat this 4 times to fill in each 4x4
 block on the main diagonal.
 
@@ -369,6 +370,14 @@ Talk about tests that validate that it should work.
 
 \begin{appendices}
 
+  \chapter{Circular Integration}
+  
+  What follows is Dr. Turley's work, which was foundational for this project and is referenced a bunch.
+  
+  \includepdf[pages=-]{figures/circular-integration.pdf}
+  
+  
+  
   \chapter{The Code}\label{chap:julia}
   
   This is where the code will be pasted in, to have some redundancy in case GitHub dies or whatever.
