@@ -1,6 +1,6 @@
 # Mirrors.jl
 
-This repository contains my thesis and its associated code. It's a Julia package, and can be installed and used with:
+This repository contains my thesis and its associated code. It's a Julia package, and can be installed with:
 
 ```jldoctest
 pkg> add https://github.com/mjg0/Mirrors.jl
