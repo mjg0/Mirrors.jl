@@ -1,5 +1,6 @@
 \documentclass[etd,oneside,senior]{BYUPhys}
 \usepackage{pdfpages}
+\usepackage{listings}
 \graphicspath{{./figures}}
 \DeclareMathOperator{\J}{J}
 \DeclareMathOperator{\struveh}{H}
@@ -37,14 +38,14 @@
 
 % Your research advisor
 \AdvisorTitle{Advisors}
-  \Advisor{Steven Turley}
+  \Advisor{Steven Turley, David Allred}
 
 % The text of your abstract
   \Abstract{The abstract is a summary of the thesis/dissertation
   with emphasis on the findings of the study. The abstract must not
   exceed 350 words in length and fit on one page, single spaced.
   
-  Comptational optics things. Didn't work, no ideas on how to make it work :/}
+  Comptational optics things. Didn't work, to make it work I think the impedance matrix condition number needs to be reduced somehow}
 
  \Keywords{mirror, reflect}
 
@@ -85,7 +86,7 @@
 
 \section{The Problem} \label{sec:problem}
 
-We don't have good models of how roughness affects reflectance (CITE). There's stuff that does well when the roughness is a lot bigger or smaller than the wavelength of incident light (CITE both); this is meant to fit between.
+We don't have good models of how roughness affects reflectance (CITE). There's stuff that does well when the roughness is a lot bigger or smaller than the wavelength of incident light (CITE both, expand on this); this is meant to fit between.
 
 
 
@@ -99,17 +100,17 @@ Made a computational model for circular rough mirrors. It's available on \href{h
 
 
 
-% MATH %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EXPECTED RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{The Math} \label{chap:math}
+\chapter{Methods} \label{chap:math}
 
-\section{Expected Reflectance} \label{sec:expected_results}
+\section{Modeling Expected Results} \label{sec:expected_results}
 
 We need to make sure that our results make sense--does our program predict correct reflectance even for a flat mirror? So we need to figure out an equation that gives us what we expect: given an incident beam angle, $\alpha$, how would an ideal mirror react to uniform illumination? In the far field, what is the intensity (as predicted by physical optics) at a certain polar and azimuthal angle?
 
 \subsection{Huygens Approximation} \label{subsec:huygens_approx}
 
-We obviously need an expected reflectance profile to make sure that what we're doing looks right. Since a flat, finite, perfectly conductive mirror is just the reflective version of an aperture (CITE), we can use the Huygen-Fresnel principle to see how light should behave when it hits a perfectly flat, perfectly reflective mirror.
+We obviously need an expected reflectance profile to make sure that what we're doing looks right. Since a flat, finite, perfectly conductive mirror is just the reflective version of an aperture (CITE), we can use the Huygens-Fresnel principle to see how light should behave when it hits a perfectly flat, perfectly reflective mirror.
 
 Unfortunately I couldn't find an equation for diffraction through a \textit{tilted} circular aperture so I had to figure it out myself. An easy test of what I found is ensuring that whatever I come up with is identical to the circular aperture diffraction when the light comes in normal to the mirror, which is proportional to (CITE):
 
@@ -180,6 +181,7 @@ For simplicity, we'll define $a$ and $b$ as:
 \end{equation}
 
 \subsubsection{Integrating}
+
 To find the total contribution to the far field from the entire mirror (of radius $R$) at some $\theta$ and $\phi$, we need to integrate this contribution over the entire surface:
 
 \begin{equation}\label{eq:integral1}
@@ -202,11 +204,23 @@ Due to my weak math skills, I used Mathematica to integrate this [\ref{chap:inte
 
 As a quick check, when $\alpha$ is 0 (indicating normal incident light), this is proportional to equation \ref{eq:airy} as it should be [\ref{chap:airy_validation}].
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\subsection{Electric Field at Surface}\label{chap:efield}
 
-The surface is composed of patches, each with 4 points. At each of these points the electric field is calculated as follows, assuming a plane wave of wavelenth $\lambda$ coming in at angle $\alpha$ from normal (direction of $z$) in the x-z plane:
+
+
+% MIRROR MODELING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Mirror Modeling}
+
+We have a circular mirror. We break it into rings of equal annular width. Each of these rings is broken into patches of equal area. Patches have four points, placed conveniently for a high order error term. Each point has a 3-D position since there's roughness.
+
+
+
+\section{Electric Field at Surface}\label{chap:efield}
+
+At each of the points on the mirror the electric field is calculated as follows, assuming a plane wave of wavelenth $\lambda$ coming in at angle $\alpha$ from normal (direction of $z$) in the x-y plane (TODO: make a graphic and explain this better):
 
 \begin{equation}
   k_{x}=2\pi\lambda\cos\left(\alpha\right)
@@ -222,9 +236,9 @@ The surface is composed of patches, each with 4 points. At each of these points 
 
 
 
-\subsection{Impedance Matrix}
+\section{Impedance Matrix}
 
-The impedance matrix is a square matrix whose dimension is the number of points on the surface. There are two main sections, the part representing the interaction between different patches and the part representing the interaction of a patch with itself. The same-patch portion of the matrix consists of the 4x4 blocks along the main diagonal (one block for each patch), and the different-patch portion is the rest.
+The impedance matrix is a square matrix whose length along each axis is the number of points on the surface. There are two main sections, the part representing the interaction between different patches and the part representing the interaction of a patch with itself. The same-patch portion of the matrix consists of the 4x4 blocks along the main diagonal (one block for each patch), and the different-patch portion is the rest.
 
 \subsubsection{Different patch}
 
@@ -327,16 +341,28 @@ Now we can finally fill out this row of the block:
 index of the other patch. We repeat this 4 times to fill in each 4x4
 block on the main diagonal.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+% REFLECTANCE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Surface Current}
+
+Once Z and E are figured out, J is just $Z\backslash E$.
+
 
 
 \subsection{Reflectance}
-Once Z and E are figured out, J is just $Z\backslash E$. With J it's easy to calculate reflectance for a given $\theta$ (polar) and $\phi$ (azimuthal):
+With J it's easy to calculate reflectance for a given $\theta$ (polar) and $\phi$ (azimuthal):
 
 \begin{equation}
   R=\sum_{pts}J_{pt}e^{-ik\left(x\sin\left(\theta\right)\cos\left(\phi\right)+y\sin\left(\theta\right)\cos\left(\phi\right)+z\cos\left(\theta\right)\right)}
 \end{equation}
 
-The real part gives us the reflectance at infinity for a certain angle.
+The real part gives us the reflectance (or was it intensity?) at infinity for a certain angle.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -346,7 +372,7 @@ The real part gives us the reflectance at infinity for a certain angle.
 
 % CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{The Code}\label{chap:code} % or maybe this should just be a subsection of "Methods"
+\section{The Code}\label{chap:code} % or maybe this should just be a subsection of "Methods"
 
 Talk about what the code does.
 
@@ -376,7 +402,7 @@ Talk about condition numbers of impedance matrices.
 
 \chapter{Conclusion}\label{chap:conclusion}
 
-Didn't work. Here are some ideas for making it work (need to come up with some, I have no idea what's best to try).
+Didn't work. Here are some ideas for making it work (need to come up with some, I'm not sure what to try).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -396,12 +422,6 @@ Didn't work. Here are some ideas for making it work (need to come up with some, 
   
   
   
-  \chapter{The Code}\label{chap:julia}
-  
-  This is where the code will be pasted in, to have some redundancy in case GitHub dies or whatever.
-  
-  
-  
   \chapter{Integral of Equation \ref{eq:integral1}}\label{chap:integral}
   
   Integration was done with Mathematica 13.1.0.
@@ -415,6 +435,18 @@ Didn't work. Here are some ideas for making it work (need to come up with some, 
   Simplification was done with Mathematica 13.1.0.
   
   \includegraphics[width=\textwidth]{airy-simplification.pdf}
+  
+  
+  
+  \chapter{The Code}\label{chap:julia}
+  
+  \section{Structure}
+  
+  It's a fully functional Julia package. Here's the directory structure:
+  
+  \lstinputlisting{code-directory-structure.txt}
+  
+  TODO: is this worth the effort? It's surprisingly annoying to loop through a newline-delimited file and print the name then contents
   
 \end{appendices}
 
