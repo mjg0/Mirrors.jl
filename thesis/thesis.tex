@@ -389,9 +389,9 @@ The Julia package \href{https://github.com/mjg0/Mirrors.jl}{Mirrors.jl} was buil
 \begin{minted}{julia}
   # Create a Mirror object
   radius = 5.0 # wavelengths
-  N = 20 # number of rings
-  rms = 0.1 # RMS surface roughness
-  sigma = 3.0 # standard deviation of surface roughness
+  N = 20       # number of rings
+  rms = 0.1    # RMS surface roughness
+  sigma = 3.0  # standard deviation of surface roughness
   M = Mirror(radius, N, rms, sigma)
 
   # Find the mirror's impedance
@@ -408,6 +408,14 @@ The Julia package \href{https://github.com/mjg0/Mirrors.jl}{Mirrors.jl} was buil
   R = Reflectance(M, E)
   heatmap(R)
 \end{minted}
+
+The resultant heatmap, with some fancier plotting [\ref{chap:heatmap_code}], might look like figure \ref{fig:sample_heatmap}.
+
+\begin{figure}\label{fig:sample_heatmap}
+  \centerline{\includegraphics[width=\textwidth]{sample-reflectance}}
+  \caption[Heatmap from the above sample code]{
+    Heatmap of the reflectance found by the sample code above [\ref{chap:code}]}
+\end{figure}
 
 Talk about what the code does.
 
@@ -454,6 +462,23 @@ Didn't work. Here are some ideas for making it work (need to come up with some, 
   What follows is Dr. Turley's work, which was foundational for this project and is referenced a bunch.
   
   \includepdf[pages=-]{figures/circular-integration.pdf}
+  
+  
+  
+  \chapter{Generating Nice Heatmaps}\label{chap:heatmap_code}
+  
+  Given a \texttt{Reflectance} object \texttt{R}, a nice heatmap of said reflectance can be generated with:
+  
+  \begin{minted}{julia}
+    heatmap((R.==0).*-max(R...)./2 + R, aspect_ratio=:equal,
+                                        colorbar=false,
+                                        xticks=false,
+                                        yticks=false,
+                                        axis=false,
+                                        background=false)
+  \end{minted}
+  
+  This was used to generate ONE? SEVERAL? figures in here.
   
   
   
