@@ -80,8 +80,6 @@
 
 \chapter{Introduction} \label{chap:intro}
 
-λ
-
 \section{The Problem} \label{sec:problem}
 
 We don't have good models of how roughness affects reflectance (CITE). There's stuff that does well when the roughness is a lot bigger or smaller than the wavelength of incident light (CITE both, expand on this); this is meant to fit between.
@@ -91,6 +89,12 @@ We don't have good models of how roughness affects reflectance (CITE). There's s
 \section{The Attempted Solution} \label{sec:attempted_solution}
 
 Made a computational model for circular rough mirrors. It's available on \href{https://github.com/mjg0/Mirrors.jl}{GitHub}.
+
+
+
+\section{Note on Plots} \label{sec:plots_note}
+
+Two types of plots will be used frequently here: plots of mirrors and plots of reflectance. The mirror plots are what you'd expect--just whatever thing (height, electric field, surface current) on the mirror itself. Reflectance plots are \href{}{polar azimuthal projections} centered at normal to the mirror and extending to 90 degrees, much like a map of the northern hemisphere centered at the North Pole and extending to the equator.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -297,7 +301,7 @@ $f$ over a patch for a certain point $p$ ($H$ is hcubature):
 The function that we want to look at is the Green's function of the
 point with another point:
 
-\begin{equation}
+\begin{equation} \label{eq:greens}
   G\left(p_{1},p_{2}\right)=\frac{e^{ik\rho}}{4\pi\rho}
 \end{equation}
 
@@ -379,46 +383,69 @@ The real part squared (?) gives us the intensity at infinity for a certain angle
 
 % CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{The Code}\label{chap:code} % or maybe this should just be a subsection of "Methods"
+\section{The Code}\label{sec:code}
 
-The Julia package \href{https://github.com/mjg0/Mirrors.jl}{Mirrors.jl} was build and used to compute all described above. A short example of its usage is given below:
+The Julia package \href{https://github.com/mjg0/Mirrors.jl}{Mirrors.jl} (which is included as an appendix [\ref{chap:julia}]) was built and used for computation. Here's an example of its usage:
 
 \begin{minted}{julia}
+  using Mirrors, Plots
+
   # Create a Mirror object
-  radius = 5.0 # wavelengths
+  radius = 2.5 # units are wavelengths
   N = 20       # number of rings
-  rms = 0.1    # RMS surface roughness
-  sigma = 3.0  # standard deviation of surface roughness
+  rms = 0.0    # RMS of surface roughness (wavelengths)
+  sigma = 0.0  # stdev of surface roughness (wavelengths)
   M = Mirror(radius, N, rms, sigma)
 
   # Find the mirror's impedance
   Z = impedance(M)
 
   # Find the electric field induced by a uniform plane wave
-  alpha = pi/6 # incident beam angle
+  alpha = pi/8 # incident beam angle
   E = electricfield(M, alpha)
 
   # Find the surface current due to E
   J = Z \ E
 
   # Determine and plot reflectance
-  R = Reflectance(M, E)
+  R = Reflectance(M, J)
   heatmap(R)
 \end{minted}
 
+The resultant heatmap, with a few extra parameters for the \texttt{heatmap} call [\ref{chap:heatmap_code}], might look like figure \ref{fig:sample_heatmap}.
+
 \begin{figure}
-  \centerline{\includegraphics[width=\textwidth]{sample-reflectance}}
+  \centerline{\includegraphics[width=.7\textwidth]{sample-reflectance}}
+  \centerline{\includegraphics[width=.7\textwidth]{sample-reflectance-expected}}
   \caption[Heatmap from the above sample code]{\label{fig:sample_heatmap}
-    Heatmap of the reflectance found by the sample code above [\ref{chap:code}]}
+    Heatmap of the reflectance found by the sample code above [\ref{sec:code}] above, expected reflectance below. As mentioned above [\ref{chap:plots_note}], it's an azimuthal equidistant projection of the far field reflectance centered normal to the mirror and extending 90 degrees in any direction.}
 \end{figure}
 
-The resultant heatmap, with some fancier plotting [\ref{chap:heatmap_code}], might look like figure \ref{fig:sample_heatmap}.
 
-Talk about what the code does.
 
-Talk about tests that validate that it should work.
+\subsection{Validation} \label{sec:validation}
 
-Just include that section of the README here? As a usage example?
+To ensure that the code works correctly, tests were written to ensure that any function can be integrated over the surface. The full tests are included in the appendices [\ref{runtests.jl}].
+
+An impedance matrix can be created for an arbitrary function, not just Green's function [\ref{eq:greens}]. For example, to use the equation $f\left(r, \theta\right) = r^2$ for mirror \texttt{M}, one can create the impedance matrix thus:
+
+\begin{minted}{julia}
+  Z = impedance(M, (r1, θ1, z1, r2, θ2, z2)->r2^2)
+\end{minted}
+
+Once the impedance matrix has been filled, the sum of each row in the matrix should be the integral of the equation over the surface of the mirror--this corresponds to one point on each patch being integrated over the entire patch, for each patch in the mirror. This is tested with the equations:
+
+$f\left(r, \theta\right) = 0.7$
+
+$f\left(r, \theta\right) = r$
+
+$f\left(r, \theta\right) = 1.4 r \sin\left(\theta\right)^2$
+
+$f\left(r, \theta\right) = 0.3 r^2 \cos\left(\theta\right)^2$
+
+\ldots and in each case is correct to within 1\% for every row of the impedance matrix with mirrors of 3 rings (so few are used so the tests, of which this is just a part, can be run reasonably fast).
+
+TODO: discuss the fact that I didn't do any with functions of $z$ since I don't have a way to create mirrors of arbitrary non-random height?
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -456,7 +483,7 @@ Didn't work. Here are some ideas for making it work (need to come up with some, 
 
   \chapter{Circular Integration}\label{chap:circular_integration}
   
-  What follows is Dr. Turley's work, which was foundational for this project and is referenced a bunch.
+  What follows is Dr. Turley's work, which was foundational for this project and is referenced frequently.
   
   \includepdf[pages=-]{figures/circular-integration.pdf}
   
@@ -499,9 +526,11 @@ Didn't work. Here are some ideas for making it work (need to come up with some, 
   
   \section{Structure}
   
-  It's a fully functional Julia package. Here's the directory structure:
+  \href{https://github.com/mjg0/Mirrors.jl}{Mirrors.jl} is a fully functional Julia package with the following directory structure:
   
   \lstinputlisting[basicstyle=\ttfamily]{code-directory-structure.txt}
+  
+  These files are included below.
   
   \begin{tiny}
     \input{code.tex}

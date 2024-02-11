@@ -6,7 +6,7 @@ This repository contains my thesis and its associated code. It's a Julia package
 pkg> add https://github.com/mjg0/Mirrors.jl
 ```
 
-The thesis, which goes into detail on the research that requires this code, can be built with `make` if you have `lualatex` and `pygments` installed.
+The thesis, which goes into detail on the research that requires this code, can be built with `make` if you have `bash`, `lualatex`, and `pygments` installed.
 
 This document will focus more on the code itself since the thesis covers the math and purpose behind `Mirrors.jl`. In short, a `Mirror` is a circular conducting mirror, possibly with some surface roughness:
 
@@ -14,9 +14,9 @@ This document will focus more on the code itself since the thesis covers the mat
 using Mirrors, Plots
 
 radius = 5.0 # wavelengths
-N = 20 # number of rings; more rings means more precision and more memory use
-rms = 0.1 # RMS surface roughness
-sigma = 3.0 # standard deviation of surface roughness
+N = 20       # number of rings; more rings means more precision and more memory use
+rms = 0.1    # RMS surface roughness
+sigma = 3.0  # standard deviation of surface roughness
 
 M = Mirror(radius, N, rms, sigma)
 heatmap(M) # plot the mirror's height
