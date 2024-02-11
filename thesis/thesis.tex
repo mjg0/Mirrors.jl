@@ -120,7 +120,7 @@ Unfortunately I couldn't find an equation for diffraction through a \textit{tilt
 
 \ldots where $k$ is the wave number, $\frac{2\pi}{\lambda}$ ($\lambda$ being the wavelength), $R$ is the radius of the aperture (mirror in our case), and $\theta$ is the angle at which the reflectance is measured. $J_1$ is the first order Bessel function of the first kind. This is the Airy pattern (CITE?).
 
-\subsubsection{Setup}
+\subsection{Setup} \label{sec:setup}
 
 The electric field on a flat mirror in the x-y plane due to a plane wave coming in at an angle $\alpha$ from normal (the z axis), inclined toward the x axis, is proportional to (CITE?):
 
@@ -130,7 +130,7 @@ The electric field on a flat mirror in the x-y plane due to a plane wave coming 
 
 The contribution of one point on the mirror to the far field reflectance at some polar angle $\theta$ and azimuthal angle $\phi$ is just going to be that exponential multiplied by some phase shift.
 
-\subsubsection{Phase Shift}
+\subsection{Phase Shift} \label{sec:phase_shift}
 Since we're concerned with reflectance in the far field, all we need to determine is the phase shift relative to the origin. For some point $p$, we need to calculate the distance $d$ between that point and the origin \textit{along the direction of travel toward the point in the far field} defined by $\theta$ and $\phi$.
 
 \begin{figure}
@@ -180,7 +180,7 @@ For simplicity, we'll define $a$ and $b$ as:
   e^{i(ax_p+by_p)}
 \end{equation}
 
-\subsubsection{Integrating}
+\subsection{Integrating} \label{sec:integrating}
 
 To find the total contribution to the far field from the entire mirror (of radius $R$) at some $\theta$ and $\phi$, we need to integrate this contribution over the entire surface:
 
@@ -212,9 +212,17 @@ As a quick check, when $\alpha$ is 0 (indicating normal incident light), this is
 
 % MIRROR MODELING %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Mirror Modeling}
+\section{Mirror Modeling} \label{section:mirror_modeling}
 
 We have a circular mirror. We break it into rings of equal annular width. Each of these rings is broken into patches of equal area. Patches have four points, placed conveniently for a high order error term. Each point has a 3-D position since there's roughness.
+
+\subsection{Patch} \label{sec:patch}
+
+More detailed explanation
+
+\subsection{Mirror} \label{sec:mirror}
+
+The mirror is just a bunch of patches basically
 
 
 
@@ -236,11 +244,11 @@ At each of the points on the mirror the electric field is calculated as follows,
 
 
 
-\section{Impedance Matrix}
+\section{Impedance Matrix} \label{sec:impedance}
 
 The impedance matrix is a square matrix whose length along each axis is the number of points on the surface. There are two main sections, the part representing the interaction between different patches and the part representing the interaction of a patch with itself. The same-patch portion of the matrix consists of the 4x4 blocks along the main diagonal (one block for each patch), and the different-patch portion is the rest.
 
-\subsubsection{Different patch}
+\subsection{Different patch} \label{sec:different_patch}
 
 Since there's no chance of hitting a singularity when computing how two different patches interact, each non-singular interaction for points $i$ and $j$ can be calculated with:
 
@@ -250,7 +258,7 @@ Since there's no chance of hitting a singularity when computing how two differen
 
 ...where the first fraction is a Jacobian (see Circular Integration equation 22--I've subbed in $r_{j}$ for $a\left(n+\frac{1}{2}+\frac{1}{2\sqrt{3}}\right)$) and $G$ is the Green's function.
 
-\subsubsection{Same patch}
+\subsection{Same patch} \label{sec:same_patch}
 This is a good bit harder because of the need to deal with singularities. In essence, for each annular patch we want to transform it into a square, then split that square up into 4 triangles with a common vertex at the point in question, then reduce the order of the singularity at that point by stretching the point into a line to get a square over which to integrate. Since we want to use HCubature to calculate the integral, we'll turn the triangular portion of the patch into a square from $(0,0)$ to $(1,1)$ and make it a function of two variables, we'll say $u$ and $v$ (see Circular Intregration sections 5.6 and 5.7):
 
 \begin{equation}
@@ -349,13 +357,13 @@ block on the main diagonal.
 
 % REFLECTANCE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Surface Current}
+\subsection{Surface Current} \label{sec:current}
 
 Once Z and E are figured out, J is just $Z\backslash E$.
 
 
 
-\subsection{Reflectance}
+\subsection{Reflectance} \label{sec:reflectance}
 With J it's easy to calculate reflectance for a given $\theta$ (polar) and $\phi$ (azimuthal):
 
 \begin{equation}
