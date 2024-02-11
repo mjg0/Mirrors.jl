@@ -1,8 +1,13 @@
-\documentclass[etd,oneside,senior]{BYUPhys}
+\documentclass[etd,twoside,senior]{BYUPhys}
+
 \usepackage{pdfpages}
 \usepackage{listings}
 \usepackage[outputdir=out]{minted}
 \usepackage{fontspec}
+\usepackage{unicode-math}
+
+\setmonofont{Liberation Mono} % needs to be a font that supports unicode characters!
+
 \graphicspath{{./figures}}
 \DeclareMathOperator{\J}{J}
 \DeclareMathOperator{\struveh}{H}
@@ -21,28 +26,18 @@
         \endgroup
 }
 
-% If you'd like to print your thesis using double-sided printing,
-% remove the etd option and change the oneside argument to twoside, like this:
-%
-%\documentclass[twoside,masters]{BYUPhys}
-
-% Your name
   \Author{Michael Greenburg}
 
-% Enter the year your thesis is approved (for senior thesis or capstone)
   \Year{2024}
 
-% If you have a long title, split it between multiple lines using the \\ command
   \Title{Title: Titles Must Be in Mixed Case and May Not Exceed Six Inches on One Line\\
   and Must Be in the Inverted Pyramid Format When\\
   Additional Lines Are Needed
   }
 
-% Your research advisor
 \AdvisorTitle{Advisors}
   \Advisor{Steven Turley, David Allred}
 
-% The text of your abstract
   \Abstract{The abstract is a summary of the thesis/dissertation
   with emphasis on the findings of the study. The abstract must not
   exceed 350 words in length and fit on one page, single spaced.
@@ -51,7 +46,6 @@
 
  \Keywords{mirror, reflect}
 
-% Acknowledge those who helped and supported you
   \Acknowledgments{
     Acknowledgements should be simple, in good taste, and fit on one page
   }
@@ -85,6 +79,8 @@
 % INTRO %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Introduction} \label{chap:intro}
+
+λ
 
 \section{The Problem} \label{sec:problem}
 
@@ -398,7 +394,7 @@ The Julia package \href{https://github.com/mjg0/Mirrors.jl}{Mirrors.jl} was buil
   # Find the mirror's impedance
   Z = impedance(M)
 
-  # Determine the electric field on the surface given a uniform plane wave
+  # Find the electric field induced by a uniform plane wave
   alpha = pi/6 # incident beam angle
   E = electricfield(M, alpha)
 
@@ -410,13 +406,13 @@ The Julia package \href{https://github.com/mjg0/Mirrors.jl}{Mirrors.jl} was buil
   heatmap(R)
 \end{minted}
 
-The resultant heatmap, with some fancier plotting [\ref{chap:heatmap_code}], might look like figure \ref{fig:sample_heatmap}.
-
-\begin{figure}\label{fig:sample_heatmap}
+\begin{figure}
   \centerline{\includegraphics[width=\textwidth]{sample-reflectance}}
-  \caption[Heatmap from the above sample code]{
+  \caption[Heatmap from the above sample code]{\label{fig:sample_heatmap}
     Heatmap of the reflectance found by the sample code above [\ref{chap:code}]}
 \end{figure}
+
+The resultant heatmap, with some fancier plotting [\ref{chap:heatmap_code}], might look like figure \ref{fig:sample_heatmap}.
 
 Talk about what the code does.
 
@@ -505,7 +501,7 @@ Didn't work. Here are some ideas for making it work (need to come up with some, 
   
   It's a fully functional Julia package. Here's the directory structure:
   
-  \lstinputlisting{code-directory-structure.txt}
+  \lstinputlisting[basicstyle=\ttfamily]{code-directory-structure.txt}
   
   \begin{tiny}
     \input{code.tex}
