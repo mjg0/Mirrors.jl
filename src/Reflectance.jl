@@ -17,9 +17,9 @@ Calculate the far-field reflectance at a certain angle given a mirror and the cu
 - `λ::Real`: the wavelength of incident light; default 1
 """
 function reflectanceat(mirror::Mirror, J::AbstractVector{ComplexF64}, θ::Real, ϕ::Real, λ::Real=1)
-    sum = 0.0+0.0im
+    sum = 0.0 + 0.0im
     for (cur, (r, t, z)) in zip(J, Iterators.flatten(mirror))
-        sum += cur * exp(1im * 2π/λ * (r*cos(ϕ-t)*sin(θ) + z*cos(θ)))
+        sum += cur * exp(1im * 2π / λ * (r * cos(ϕ - t) * sin(θ) + z * cos(θ)))
     end
     return sum
 end
@@ -41,14 +41,12 @@ If `α` is 0, the simpler Airy formula will be used
 - `λ::Real`: the wavelength of incident light; default 1
 """
 function expectedreflectanceat(R::Real, θ::Real=0, ϕ::Real=0, α::Real=0, λ::Real=1)
-    # Found this with Mathematica: Integrate[ Exp[I (a r Cos[t] + b r Sin[t])], {r, 0, R}, {t, 0, 2 \[Pi]}, Assumptions -> {{a, b, R} \[Element] Reals, {R, a^2, b^2} > 0}]
-    # UPDATE: I missed a multiplication by r to account for the circular integration :facepalm:. When I fixed it, it came out to: \[Pi] R^2 Hypergeometric0F1Regularized[2, 1/4 (a^2 + b^2) R^2]
     if α == 0 # use Airy formula
-        c = 2π/λ * R * sin(θ)
+        c = 2π / λ * R * sin(θ)
         return besselj(1, c) / c
     else
         _₀F₁(a, z) = pFq(typeof(a)[], [a], z)
-        return π * R^2 * _₀F₁(2, -(π*R/λ)^2 * (sin(α)^2+sin(θ)^2-2*sin(α)*sin(θ)*cos(ϕ)))
+        return π * R^2 * _₀F₁(2, -(π * R / λ)^2 * (sin(α)^2 + sin(θ)^2 - 2 * sin(α) * sin(θ) * cos(ϕ)))
     end
 end
 
@@ -98,21 +96,17 @@ struct Reflectance <: AbstractMatrix{Float64}
     r::Matrix{Float64}
 
     function Reflectance(f::Function, n::Integer=defaultn)
-        grid = range(-π/2, π/2, length=n)
-        return new([sqrt(x^2+y^2)<π/2 ? abs(f(sqrt(x^2+y^2), atan(x, y))) : 0
+        grid = range(-π / 2, π / 2, length=n)
+        return new([sqrt(x^2 + y^2) < π / 2 ? abs(f(sqrt(x^2 + y^2), atan(x, y))) : 0
                     for x in grid, y in grid])
     end
 
     function Reflectance(mirror::Mirror, J::AbstractVector{ComplexF64}, n::Integer=defaultn)
-        return Reflectance((θ, ϕ)->reflectanceat(mirror, J, θ, ϕ), n)
+        return Reflectance((θ, ϕ) -> reflectanceat(mirror, J, θ, ϕ), n)
     end
 
     function Reflectance(r::Real, α::Real=0, λ::Real=1, n::Integer=defaultn)
-        if α == 0
-            return Reflectance((θ, ϕ)->airyreflectanceat(r, θ, λ), n)
-        else
-            return Reflectance((θ, ϕ)->expectedreflectanceat(r, α, θ, ϕ, λ), n)
-        end
+        return Reflectance((θ, ϕ) -> expectedreflectanceat(r, θ, ϕ, α, λ), n)
     end
 
     function Reflectance(io::IO)
@@ -130,7 +124,7 @@ end
 # Implement AbstractVector interface
 Base.size(refl::Reflectance) = size(refl.r)
 
-Base.getindex( refl::Reflectance, args...) = getindex( refl.r, args...)
+Base.getindex(refl::Reflectance, args...) = getindex(refl.r, args...)
 
 Base.setindex!(refl::Reflectance, args...) = setindex!(refl.r, args...)
 
