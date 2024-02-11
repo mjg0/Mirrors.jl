@@ -1,21 +1,25 @@
 .PHONY: all thesis clean distclean
 
 DIR_STRUCTURE = thesis/code-directory-structure.txt
+CODE_TEX = thesis/code.tex
 
 all: thesis
 
 thesis: thesis.pdf
 
 $(DIR_STRUCTURE):
-	@(cd .. && find Mirrors.jl -type f -not -path '*/examples/*' -iname '*.jl' -or -iname '*.toml' | sort) > $@
+	@(cd .. && find Mirrors.jl -type f -not -path '*/examples/*' -iname '*.jl' -or -iname Project.toml | sort) > $@
 
-thesis.pdf: thesis/thesis.tex $(DIR_STRUCTURE)
+$(CODE_TEX): $(DIR_STRUCTURE) src/*.jl ext/*.jl test/*.jl Project.toml
+	@bash thesis/generate-code-tex.sh $< $@
+
+thesis.pdf: thesis/thesis.tex $(DIR_STRUCTURE) $(CODE_TEX)
 	@mkdir -p thesis/out
-	@cd thesis && pdflatex -shell-escape -output-directory=out thesis.tex
+	@cd thesis && lualatex -shell-escape -output-directory=out thesis.tex
 	@cp thesis/out/thesis.pdf .
 
 clean:
 	@rm -f thesis.pdf
 
 distclean: clean
-	@rm -rf thesis/out $(DIR_STRUCTURE)
+	@rm -rf thesis/out $(DIR_STRUCTURE) $(CODE_TEX)

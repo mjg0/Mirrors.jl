@@ -2,6 +2,7 @@
 \usepackage{pdfpages}
 \usepackage{listings}
 \usepackage[outputdir=out]{minted}
+\usepackage{fontspec}
 \graphicspath{{./figures}}
 \DeclareMathOperator{\J}{J}
 \DeclareMathOperator{\struveh}{H}
@@ -506,7 +507,9 @@ Didn't work. Here are some ideas for making it work (need to come up with some, 
   
   \lstinputlisting{code-directory-structure.txt}
   
-  TODO: is this worth the effort? It's surprisingly annoying to loop through a newline-delimited file and print the name then contents
+  \begin{tiny}
+    \input{code.tex}
+  \end{tiny}
   
 \end{appendices}
 
