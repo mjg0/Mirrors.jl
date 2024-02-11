@@ -1,5 +1,7 @@
 Manifest.toml
 thesis/out
+thesis/_minted-thesis
 thesis/code-directory-structure.txt
 thesis.pdf
+todo
 .vscode

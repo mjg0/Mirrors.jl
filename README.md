@@ -6,7 +6,7 @@ This repository contains my thesis and its associated code. It's a Julia package
 pkg> add https://github.com/mjg0/Mirrors.jl
 ```
 
-The thesis, which goes into detail on the research that requires this code, can be built with `make` if you have `pdflatex` installed.
+The thesis, which goes into detail on the research that requires this code, can be built with `make` if you have `pdflatex` and `pygments` installed.
 
 This document will focus more on the code itself since the thesis covers the math and purpose behind `Mirrors.jl`. In short, a `Mirror` is a circular conducting mirror, possibly with some surface roughness:
 

@@ -1,6 +1,7 @@
 \documentclass[etd,oneside,senior]{BYUPhys}
 \usepackage{pdfpages}
 \usepackage{listings}
+\usepackage[outputdir=out]{minted}
 \graphicspath{{./figures}}
 \DeclareMathOperator{\J}{J}
 \DeclareMathOperator{\struveh}{H}
@@ -357,20 +358,21 @@ block on the main diagonal.
 
 % REFLECTANCE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection{Surface Current} \label{sec:current}
+\section{Surface Current} \label{sec:current}
 
 Once Z and E are figured out, J is just $Z\backslash E$.
 
 
 
-\subsection{Reflectance} \label{sec:reflectance}
+\section{Reflectance} \label{sec:reflectance}
+
 With J it's easy to calculate reflectance for a given $\theta$ (polar) and $\phi$ (azimuthal):
 
 \begin{equation}
   R=\sum_{pts}J_{pt}e^{-ik\left(x\sin\left(\theta\right)\cos\left(\phi\right)+y\sin\left(\theta\right)\cos\left(\phi\right)+z\cos\left(\theta\right)\right)}
 \end{equation}
 
-The real part gives us the reflectance (or was it intensity?) at infinity for a certain angle.
+The real part squared (?) gives us the intensity at infinity for a certain angle.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -381,6 +383,31 @@ The real part gives us the reflectance (or was it intensity?) at infinity for a 
 % CODE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{The Code}\label{chap:code} % or maybe this should just be a subsection of "Methods"
+
+The Julia package \href{https://github.com/mjg0/Mirrors.jl}{Mirrors.jl} was build and used to compute all described above. A short example of its usage is given below:
+
+\begin{minted}{julia}
+  # Create a Mirror object
+  radius = 5.0 # wavelengths
+  N = 20 # number of rings
+  rms = 0.1 # RMS surface roughness
+  sigma = 3.0 # standard deviation of surface roughness
+  M = Mirror(radius, N, rms, sigma)
+
+  # Find the mirror's impedance
+  Z = impedance(M)
+
+  # Determine the electric field on the surface given a uniform plane wave
+  alpha = pi/6 # incident beam angle
+  E = electricfield(M, alpha)
+
+  # Find the surface current due to E
+  J = Z \ E
+
+  # Determine and plot reflectance
+  R = Reflectance(M, E)
+  heatmap(R)
+\end{minted}
 
 Talk about what the code does.
 
