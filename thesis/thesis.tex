@@ -433,7 +433,7 @@ An impedance matrix can be created for an arbitrary function, not just Green's f
   Z = impedance(M, (r1, θ1, z1, r2, θ2, z2)->r2^2)
 \end{minted}
 
-Once the impedance matrix has been filled, the sum of each row in the matrix should be the integral of the equation over the surface of the mirror--this corresponds to one point on each patch being integrated over the entire patch, for each patch in the mirror. This is tested with the equations:
+Once the impedance matrix has been filled, the sum of each row in the matrix should be the integral of the equation over the surface of the mirror--this corresponds to one point on each patch being integrated over the entire patch, for each patch in the mirror. In addition, the sum of the 4x4 singular blocks on the diagonals should be 4 times the integral, with an equal contribution from each row of each singular block. This is tested with the equations:
 
 $f\left(r, \theta\right) = 0.7$
 
@@ -443,7 +443,7 @@ $f\left(r, \theta\right) = 1.4 r \sin\left(\theta\right)^2$
 
 $f\left(r, \theta\right) = 0.3 r^2 \cos\left(\theta\right)^2$
 
-\ldots and in each case is correct to within 1\% for every row of the impedance matrix with mirrors of 3 rings (so few are used so the tests, of which this is just a part, can be run reasonably fast).
+\ldots and in each case is correct to within 1\% for every row of the impedance matrix with mirrors of 3 rings (so few are used so the tests, of which this is just a part, can be run reasonably fast); the integral is in all cases within 0.01\% of the sum calculated from the singular blocks.
 
 TODO: discuss the fact that I didn't do any with functions of $z$ since I don't have a way to create mirrors of arbitrary non-random height?
 
