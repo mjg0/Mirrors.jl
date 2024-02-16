@@ -417,8 +417,8 @@ The resultant heatmap, with a few extra parameters for the \texttt{heatmap} call
 \begin{figure}
   \centerline{\includegraphics[width=.7\textwidth]{sample-reflectance}}
   \centerline{\includegraphics[width=.7\textwidth]{sample-reflectance-expected}}
-  \caption[Heatmap from the above sample code]{\label{fig:sample_heatmap}
-    Heatmap of the reflectance found by the sample code above [\ref{sec:code}] above, expected reflectance below. As mentioned above [\ref{chap:plots_note}], it's an azimuthal equidistant projection of the far field reflectance centered normal to the mirror and extending 90 degrees in any direction.}
+  \caption[heatmap from the above sample code]{\label{fig:sample_heatmap}
+    heatmap of the reflectance found by the sample code above [\ref{sec:code}] above, expected reflectance below. as mentioned above [\ref{chap:plots_note}], it's an azimuthal equidistant projection of the far field reflectance centered normal to the mirror and extending 90 degrees in any direction.}
 \end{figure}
 
 
@@ -457,7 +457,37 @@ TODO: discuss the fact that I didn't do any with functions of $z$ since I don't 
 
 \chapter{Results}\label{chap:results}
 
-Talk about condition numbers of impedance matrices.
+A parameter sweep over the following values was run, for a total of just over 500 simulations:
+
+\begin{itemize}
+  \item Mirror radius: 3, 10, and 30 wavelengths
+  \item RMS mirror roughness: 0, 0.01, and 0.1 wavelengths
+  \item Mirror roughness standard deviation: 1, 3, and 10 wavelengths
+  \item Incident light angle, from normal (degrees): 0, 15, 30, 45, 60, 75
+  \item Gaussian beam cross section standard deviation: uniform beam, 1, 3, and 10 wavelengths
+\end{itemize}
+
+TODO: these aren't explained sufficiently.
+
+Since mirrors that fit in the memory of a desktop yielded poor results [\ref{fig:sample_heatmap}], the largest mirror size that can fit on non-exotic supercomputer nodes was chosen: 100 rings. This gives an impedance matrix of just over 230 GB with double precision complex floats, allowing the simulation to just fit in 500 GB of memory when taking the LU preconditioner for the solver into account.
+
+The parameter sweep yielded no decent results. Figure [\ref{fig:100_rings}] shows a representative example. The uniform illuminating beam came was 30 degrees from normal, and the mirror has a radius of 10 wavelengths with RMS height 0.01 wavelengths and roughness standard deviation 3 wavelengths.
+
+\begin{figure}
+  \centerline{\includegraphics[width=\textwidth]{100-ring-results}}
+  \caption[Results with 100 rings]{\label{fig:100_rings}
+    Results with 100 rings}
+\end{figure}
+
+Using more rings made very little difference. Figure [\ref{fig:30_rings}] shows the results of a simulation with identical parameters, save that 30 rings were used instead of 100.
+
+\begin{figure}
+  \centerline{\includegraphics[width=\textwidth]{30-ring-results}}
+  \caption[Results with 30 rings]{\label{fig:30_rings}
+    Results with 30 rings}
+\end{figure}
+
+It seems likely that the results are poor due to the high condition numbers of the impedance matrices. For the simulation mentioned above, the condition numbers were 85.2 billion with 100 rings [\ref{fig:100_rings}] and 1.43 billion with 30 rings [\ref{fig:30_rings}].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
