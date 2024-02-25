@@ -30,32 +30,21 @@
 
   \Year{2024}
 
-  \Title{Title: Titles Must Be in Mixed Case and May Not Exceed Six Inches on One Line\\
-  and Must Be in the Inverted Pyramid Format When\\
-  Additional Lines Are Needed
-  }
+  \Title{Computationally Modeling Rough Mirrors}
 
 \AdvisorTitle{Advisors}
   \Advisor{Steven Turley, David Allred}
 
-  \Abstract{The abstract is a summary of the thesis/dissertation
-  with emphasis on the findings of the study. The abstract must not
-  exceed 350 words in length and fit on one page, single spaced.
-  
-  Comptational optics things. Didn't work, to make it work I think the impedance matrix condition number needs to be reduced somehow}
+  \Abstract{A program was created to model the effects of surface roughness on reflectance from conducting surfaces. Despite tests indicating a correct computational model, ill-conditioned surface impedance matrices meant that the results can't be trusted.}
 
  \Keywords{mirror, reflect}
-
-  \Acknowledgments{
-    Acknowledgements should be simple, in good taste, and fit on one page
-  }
 
 %% The members of your committee (masters only need A and B, PhD need all 4)
 %  \MemberA{Committee Member A}
 %  \MemberB{Committee Member B}
 %  \MemberC{Committee Member C}
 %  \MemberD{Committee Member D}
-%
+% TODO: do I need any?
 
 \begin{document}
 
@@ -94,7 +83,7 @@ Made a computational model for circular rough mirrors. It's available on \href{h
 
 \section{Note on Plots} \label{sec:plots_note}
 
-Two types of plots will be used frequently here: plots of mirrors and plots of reflectance. The mirror plots are what you'd expect--just whatever thing (height, electric field, surface current) on the mirror itself. Reflectance plots are \href{}{polar azimuthal projections} centered at normal to the mirror and extending to 90 degrees, much like a map of the northern hemisphere centered at the North Pole and extending to the equator.
+Two types of plots will be used frequently here: plots of mirrors and plots of reflectance. The mirror plots are what you'd expect--just whatever thing (height, electric field, surface current) on the mirror itself. Reflectance plots are \href{https://en.wikipedia.org/wiki/Azimuthal_equidistant_projection}{polar azimuthal equidistant projections} centered at normal to the mirror and extending to 90 degrees, much like a map of the northern hemisphere centered at the North Pole and extending to the equator.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -216,15 +205,24 @@ As a quick check, when $\alpha$ is 0 (indicating normal incident light), this is
 
 \section{Mirror Modeling} \label{section:mirror_modeling}
 
-We have a circular mirror. We break it into rings of equal annular width. Each of these rings is broken into patches of equal area. Patches have four points, placed conveniently for a high order error term. Each point has a 3-D position since there's roughness.
+The simulated mirror is a circle broken up into rings of equal annular width $a$, each broken into patches of equal area $\frac{\pi a^2}{3}$. The first ring is broken into 3 patches, the second into 9, etc.; ring $n$ has $6n+3$ patches, and a mirror of $N$ rings has $3N^2$ total patches. Each patch has four points placed at:
 
-\subsection{Patch} \label{sec:patch}
+\begin{equation}
+  r = a \left(\frac{2n+1}{2} \pm \frac{1}{2\sqrt{3}}\right)
+\end{equation}
+\begin{equation}
+  \theta = 2\pi \left(\frac{2m+1}{12n+6} \pm \frac{1}{\left(12n+6\right)\sqrt{3}}\right)
+\end{equation}
 
-More detailed explanation
+\ldots where $n$ is the ring index (starting from 0 at the center of the mirror) and $m$ is the patch index (starting at 0 and going to $6n-2$). The height $z$ at each point varies based on the mirror's roughness.
 
-\subsection{Mirror} \label{sec:mirror}
+This spacing was chosen since it gives a fourth order error term [\ref{chap:circular_integration}].
 
-The mirror is just a bunch of patches basically
+\begin{figure}
+  \centerline{\includegraphics[width=\textwidth]{circular-grid-with-points}}
+  \caption[Mirror patch boundaries and point locations]{\label{fig:patches_points}
+    The patch boundaries and points of a mirror with 3 rings.}
+\end{figure}
 
 
 

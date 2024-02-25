@@ -1,0 +1,275 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     10954,        267]
+NotebookOptionsPosition[     10442,        250]
+NotebookOutlinePosition[     10873,        266]
+CellTagsIndexPosition[     10830,        263]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+   "Generate", " ", "a", " ", "graphic", " ", "illustrating", " ", "how", " ",
+     "patches", " ", "are", " ", "split", " ", "up", " ", "on", " ", "a", " ",
+     "circular", " ", "grid"}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{"GenerateLines", "[", "n_", "]"}], ":=", 
+     RowBox[{"Module", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"\[Theta]", ",", "m", ",", "lines", ",", "p1", ",", "p2"}], 
+        "}"}], ",", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"lines", "=", 
+         RowBox[{"{", "}"}]}], ";", "\[IndentingNewLine]", 
+        RowBox[{"For", "[", 
+         RowBox[{
+          RowBox[{"m", "=", "0"}], ",", 
+          RowBox[{"m", "<", 
+           RowBox[{
+            RowBox[{"6", "n"}], "+", "3"}]}], ",", 
+          RowBox[{"m", "++"}], ",", "\[IndentingNewLine]", 
+          RowBox[{
+           RowBox[{"\[Theta]", "=", 
+            RowBox[{
+             FractionBox[
+              RowBox[{"2", "\[Pi]", " ", "m"}], 
+              RowBox[{
+               RowBox[{"6", "n"}], "+", "3"}]], "+", 
+             FractionBox["\[Pi]", "2"]}]}], ";", 
+           RowBox[{"(*", 
+            RowBox[{
+            "Adding", " ", "90", "\[Degree]", " ", "makes", " ", "it", " ", 
+             "look", " ", "a", " ", "bit", " ", "more", " ", "symmetric"}], 
+            "*)"}], "\[IndentingNewLine]", 
+           RowBox[{"p1", "=", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"n", " ", 
+               RowBox[{"Cos", "[", "\[Theta]", "]"}]}], ",", 
+              RowBox[{"n", " ", 
+               RowBox[{"Sin", "[", "\[Theta]", "]"}]}]}], "}"}]}], ";", 
+           "\[IndentingNewLine]", 
+           RowBox[{"p2", "=", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"(", 
+                RowBox[{"n", "+", "1"}], ")"}], 
+               RowBox[{"Cos", "[", "\[Theta]", "]"}]}], ",", 
+              RowBox[{
+               RowBox[{"(", 
+                RowBox[{"n", "+", "1"}], ")"}], 
+               RowBox[{"Sin", "[", "\[Theta]", "]"}]}]}], "}"}]}], ";", 
+           "\[IndentingNewLine]", 
+           RowBox[{"AppendTo", "[", 
+            RowBox[{"lines", ",", 
+             RowBox[{"{", 
+              RowBox[{"p1", ",", "p2"}], "}"}]}], "]"}], ";"}]}], 
+         "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
+        RowBox[{"Graphics", "[", 
+         RowBox[{"Line", "[", "lines", "]"}], "]"}]}]}], 
+      "\[IndentingNewLine]", "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"GeneratePoints", "[", "n_", "]"}], ":=", 
+     RowBox[{"Module", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+        "m", ",", "polarPoints", ",", "points", ",", "r", ",", "\[Theta]", 
+         ",", "dr", ",", "d\[Theta]"}], "}"}], ",", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"points", "=", 
+         RowBox[{"{", "}"}]}], ";", "\[IndentingNewLine]", 
+        RowBox[{"For", "[", 
+         RowBox[{
+          RowBox[{"m", "=", "0"}], ",", 
+          RowBox[{"m", "<", 
+           RowBox[{
+            RowBox[{"6", "n"}], "+", "3"}]}], ",", 
+          RowBox[{"m", "++"}], ",", "\[IndentingNewLine]", 
+          RowBox[{
+           RowBox[{"r", "=", 
+            RowBox[{"1", 
+             RowBox[{"(", 
+              RowBox[{"n", "+", 
+               FractionBox["1", "2"]}], ")"}]}]}], ";", "\[IndentingNewLine]", 
+           RowBox[{"dr", "=", 
+            FractionBox["1", 
+             RowBox[{"2", 
+              RowBox[{"\[Sqrt]", "3"}]}]]}], ";", "\[IndentingNewLine]", 
+           RowBox[{"\[Theta]", "=", 
+            RowBox[{
+             FractionBox[
+              RowBox[{"2", "\[Pi]", " ", 
+               RowBox[{"(", 
+                RowBox[{"m", "+", 
+                 FractionBox["1", "2"]}], ")"}]}], 
+              RowBox[{
+               RowBox[{"6", "n"}], "+", "3"}]], "+", 
+             FractionBox["\[Pi]", "2"]}]}], ";", 
+           RowBox[{"(*", 
+            RowBox[{
+            "Adding", " ", "90", "\[Degree]", " ", "makes", " ", "it", " ", 
+             "look", " ", "a", " ", "bit", " ", "more", " ", "symmetric"}], 
+            "*)"}], "\[IndentingNewLine]", 
+           RowBox[{"d\[Theta]", "=", 
+            FractionBox["\[Pi]", 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"6", "n"}], "+", "3"}], ")"}], 
+              RowBox[{"\[Sqrt]", "3"}]}]]}], ";", "\[IndentingNewLine]", 
+           RowBox[{"polarPoints", "=", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"r", "-", "dr"}], ",", 
+                RowBox[{"\[Theta]", "-", "d\[Theta]"}]}], "}"}], ",", 
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"r", "-", "dr"}], ",", 
+                RowBox[{"\[Theta]", "+", "d\[Theta]"}]}], "}"}], ",", 
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"r", "+", "dr"}], ",", 
+                RowBox[{"\[Theta]", "+", "d\[Theta]"}]}], "}"}], ",", 
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"r", "+", "dr"}], ",", 
+                RowBox[{"\[Theta]", "-", "d\[Theta]"}]}], "}"}]}], "}"}]}], 
+           ";", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{
+             RowBox[{
+              RowBox[{
+               RowBox[{"AppendTo", "[", 
+                RowBox[{"points", ",", "#"}], "]"}], "&"}], "/@", 
+              RowBox[{"{", 
+               RowBox[{"{", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"#", "[", 
+                   RowBox[{"[", "1", "]"}], "]"}], 
+                  RowBox[{"Cos", "[", 
+                   RowBox[{"#", "[", 
+                    RowBox[{"[", "2", "]"}], "]"}], "]"}]}], ",", 
+                 RowBox[{
+                  RowBox[{"#", "[", 
+                   RowBox[{"[", "1", "]"}], "]"}], 
+                  RowBox[{"Sin", "[", 
+                   RowBox[{"#", "[", 
+                    RowBox[{"[", "2", "]"}], "]"}], "]"}]}]}], "}"}], "}"}]}],
+              "&"}], "/@", "polarPoints"}], ";"}]}], "\[IndentingNewLine]", 
+         "]"}], ";", "\[IndentingNewLine]", 
+        RowBox[{"Graphics", "[", 
+         RowBox[{"Point", "[", "points", "]"}], "]"}]}]}], 
+      "\[IndentingNewLine]", "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{"Export", "[", 
+    RowBox[{"\"\<circular-grid-with-points.png\>\"", ",", 
+     RowBox[{"Show", "[", 
+      RowBox[{
+       RowBox[{"Graphics", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"Circle", "[", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{"0", ",", "0"}], "}"}], ",", "#"}], "]"}], "&"}], "/@", 
+         RowBox[{"{", 
+          RowBox[{"1", ",", "2", ",", "3"}], "}"}]}], "]"}], ",", 
+       "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"GenerateLines", "[", "#", "]"}], "&"}], "/@", 
+        RowBox[{"{", 
+         RowBox[{"0", ",", "1", ",", "2"}], "}"}]}], ",", 
+       "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"GeneratePoints", "[", "#", "]"}], "&"}], "/@", 
+        RowBox[{"{", 
+         RowBox[{"0", ",", "1", ",", "2"}], "}"}]}], ",", 
+       RowBox[{"ImageSize", "\[Rule]", "1200"}]}], "]"}], ",", 
+     "\"\<PNG\>\""}], "]"}]}]}]], "Input",
+ CellChangeTimes->{{3.7647696400296803`*^9, 3.7647697418579693`*^9}, {
+   3.764769792126539*^9, 3.764769923785659*^9}, {3.764769981921711*^9, 
+   3.76476999371424*^9}, {3.764770142377878*^9, 3.764770182515048*^9}, {
+   3.764770487730624*^9, 3.764770628930047*^9}, {3.764770881340871*^9, 
+   3.7647712579236517`*^9}, {3.764771367799595*^9, 3.764771528135929*^9}, {
+   3.764771574162856*^9, 3.764771614174302*^9}, {3.7647716517342987`*^9, 
+   3.76477165567671*^9}, {3.764771742268919*^9, 3.764771808552602*^9}, {
+   3.812152941073112*^9, 3.812152998346662*^9}, {3.8121531174464273`*^9, 
+   3.812153123038525*^9}, {3.8121531824379063`*^9, 3.812153233792759*^9}, 
+   3.812153378788822*^9, {3.812153428350355*^9, 3.812153435821972*^9}, {
+   3.812153629795904*^9, 3.812153695478437*^9}, {3.812153748408538*^9, 
+   3.812153764551874*^9}, {3.8121538800349493`*^9, 3.812154022594802*^9}, {
+   3.812154055605727*^9, 3.8121540676370792`*^9}, {3.812154174029553*^9, 
+   3.812154216035005*^9}, {3.8121542801971083`*^9, 3.812154304398385*^9}, {
+   3.812154347874133*^9, 3.812154357537187*^9}, {3.812154409149049*^9, 
+   3.8121544282814617`*^9}, {3.8121545640359783`*^9, 3.812154577702654*^9}, {
+   3.812154673753203*^9, 3.812154712270399*^9}, {3.8121550645092783`*^9, 
+   3.812155074335207*^9}, {3.812155255271018*^9, 3.812155283718899*^9}, {
+   3.812155326111979*^9, 3.8121553403892736`*^9}, {3.8121553790299673`*^9, 
+   3.8121554409093733`*^9}, {3.812155476773501*^9, 3.81215548539577*^9}, {
+   3.812155529656715*^9, 3.812155533365836*^9}, {3.812155569506404*^9, 
+   3.8121555759911633`*^9}, {3.812155984025606*^9, 3.812156006456208*^9}, {
+   3.812156199890279*^9, 3.8121562259913588`*^9}, {3.812156288309031*^9, 
+   3.8121562886146717`*^9}, {3.812159143839349*^9, 3.812159164537093*^9}, {
+   3.917876236658637*^9, 3.917876237044379*^9}},
+ CellLabel->"In[1]:=",ExpressionUUID->"d0c771c3-fdcf-477f-9f30-645c6b787e0a"],
+
+Cell[BoxData["\<\"circular-grid-with-points.png\"\>"], "Output",
+ CellChangeTimes->{
+  3.8121547151955137`*^9, 3.8121550761124353`*^9, {3.8121554304905653`*^9, 
+   3.812155486901142*^9}, 3.8121555341614227`*^9, 3.812155577910059*^9, 
+   3.8121558468559628`*^9, 3.812156016819139*^9, {3.812156210750833*^9, 
+   3.812156227004912*^9}, 3.812156289575636*^9, {3.812159145550993*^9, 
+   3.812159166580164*^9}, 3.81219094419494*^9, 3.917876246683414*^9},
+ CellLabel->"Out[3]=",ExpressionUUID->"b19f9fa2-b1ea-4b42-8699-031672b3f947"]
+}, Open  ]]
+},
+WindowSize->{1002.6666666666666`, 648.6666666666666},
+WindowMargins->{{44., -44.000000000000114`}, {Automatic, 0}},
+FrontEndVersion->"13.1 for Linux x86 (64-bit) (June 16, 2022)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"7e19827f-f25b-4a35-a5c0-85d1bd7ca64e"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 9317, 216, 730, "Input",ExpressionUUID->"d0c771c3-fdcf-477f-9f30-645c6b787e0a"],
+Cell[9900, 240, 526, 7, 33, "Output",ExpressionUUID->"b19f9fa2-b1ea-4b42-8699-031672b3f947"]
+}, Open  ]]
+}
+]
+*)
+
