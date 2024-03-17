@@ -13,7 +13,7 @@ $(DIR_STRUCTURE):
 $(CODE_TEX): $(DIR_STRUCTURE) src/*.jl ext/*.jl test/*.jl Project.toml
 	@bash thesis/generate-code-tex.sh $< $@
 
-thesis.pdf: thesis/thesis.tex $(DIR_STRUCTURE) $(CODE_TEX)
+thesis.pdf: thesis/thesis.tex $(DIR_STRUCTURE) $(CODE_TEX) thesis/BYUPhys.cls thesis/references.bib
 	@mkdir -p thesis/out
 	@cd thesis && lualatex -shell-escape -output-directory=out thesis.tex
 	@cp thesis/out/thesis.pdf .

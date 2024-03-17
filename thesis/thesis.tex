@@ -1,4 +1,4 @@
-\documentclass[etd,twoside,senior]{BYUPhys}
+\documentclass[etd,twoside,senior,noacknowledgments]{BYUPhys}
 
 \usepackage{pdfpages}
 \usepackage{listings}
@@ -35,9 +35,9 @@
 \AdvisorTitle{Advisors}
   \Advisor{Steven Turley, David Allred}
 
-  \Abstract{A program was created to model the effects of surface roughness on reflectance from conducting surfaces. Despite tests indicating a correct computational model, ill-conditioned surface impedance matrices meant that the results can't be trusted.}
+  \Abstract{A program was created to model the effects of surface roughness on reflectance from circular conducting surfaces. Despite tests indicating a correct computational model, ill-conditioned surface impedance matrices mean that the results can't be trusted.}
 
- \Keywords{mirror, reflect}
+ \Keywords{mirror, reflect, roughness}
 
 %% The members of your committee (masters only need A and B, PhD need all 4)
 %  \MemberA{Committee Member A}
@@ -71,19 +71,19 @@
 
 \section{The Problem} \label{sec:problem}
 
-We don't have good models of how roughness affects reflectance (CITE). There's stuff that does well when the roughness is a lot bigger or smaller than the wavelength of incident light (CITE both, expand on this); this is meant to fit between.
+Modeling reflectance from a conducting surface with roughness that's on the same order of size as the wavelength of incident light is hard \cite{Schroder2011}. The computational model provided here is meant to accurately predict such reflectance.
 
 
 
 \section{The Attempted Solution} \label{sec:attempted_solution}
 
-Made a computational model for circular rough mirrors. It's available on \href{https://github.com/mjg0/Mirrors.jl}{GitHub}.
+A \href{https://github.com/mjg0/Mirrors.jl}{Julia package} was written to calculate the far-field reflectance from a rough circular conducting mirror using the model below [\ref{chap:methods}]. It's available as in appendix \ref{chap:julia} and on GitHub at https://github.com/mjg0/Mirrors.jl.
 
 
 
 \section{Note on Plots} \label{sec:plots_note}
 
-Two types of plots will be used frequently here: plots of mirrors and plots of reflectance. The mirror plots are what you'd expect--just whatever thing (height, electric field, surface current) on the mirror itself. Reflectance plots are \href{https://en.wikipedia.org/wiki/Azimuthal_equidistant_projection}{polar azimuthal equidistant projections} centered at normal to the mirror and extending to 90 degrees, much like a map of the northern hemisphere centered at the North Pole and extending to the equator.
+Two types of plots will be used frequently here: plots of mirrors and plots of reflectance. Mirror plots are what one would expect: the mentioned parameter (e.g. height, electric field) is mapped on the shape of the mirror itself. Reflectance plots are \href{https://en.wikipedia.org/wiki/Azimuthal_equidistant_projection}{polar azimuthal equidistant projections} centered at normal to the mirror and extending to 90 degrees, much like a map of the northern hemisphere centered at the North Pole and extending to the equator, with the magnitude of reflected light corresponding to the intensity of the color.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -93,36 +93,35 @@ Two types of plots will be used frequently here: plots of mirrors and plots of r
 
 % EXPECTED RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Methods} \label{chap:math}
+\chapter{Methods} \label{chap:methods}
 
 \section{Modeling Expected Results} \label{sec:expected_results}
 
-We need to make sure that our results make sense--does our program predict correct reflectance even for a flat mirror? So we need to figure out an equation that gives us what we expect: given an incident beam angle, $\alpha$, how would an ideal mirror react to uniform illumination? In the far field, what is the intensity (as predicted by physical optics) at a certain polar and azimuthal angle?
+It's vital to ensure that the program can correctly predict reflectance for a flat mirror--failing that, it can't be trusted to predict reflectance for rough surfaces. We thus need an equation that can predict far-field reflectance for an ideal mirror given an incident beam angle. Physical optics are used for simplicity.
 
 \subsection{Huygens Approximation} \label{subsec:huygens_approx}
 
-We obviously need an expected reflectance profile to make sure that what we're doing looks right. Since a flat, finite, perfectly conductive mirror is just the reflective version of an aperture (CITE), we can use the Huygens-Fresnel principle to see how light should behave when it hits a perfectly flat, perfectly reflective mirror.
-
-Unfortunately I couldn't find an equation for diffraction through a \textit{tilted} circular aperture so I had to figure it out myself. An easy test of what I found is ensuring that whatever I come up with is identical to the circular aperture diffraction when the light comes in normal to the mirror, which is proportional to (CITE):
+Since a finite, perfectly reflective surface is analogous to an aperture, the Huygens-Fresnel principle is used to approximate the behavior of circular mirrors. An easy test of the approximation will be its results when light strikes from normal to the surface: it should be proportional to the Airy pattern:
 
 \begin{equation}\label{eq:airy}
   \frac{\J_1(kR\sin(\theta))}{kR\sin(\theta)}
 \end{equation}
 
-\ldots where $k$ is the wave number, $\frac{2\pi}{\lambda}$ ($\lambda$ being the wavelength), $R$ is the radius of the aperture (mirror in our case), and $\theta$ is the angle at which the reflectance is measured. $J_1$ is the first order Bessel function of the first kind. This is the Airy pattern (CITE?).
+\ldots where $k$ is the wave number, $\frac{2\pi}{\lambda}$ ($\lambda$ being the wavelength), $R$ is the radius of the aperture (mirror in our case), and $\theta$ is the angle at which the reflectance is measured. $J_1$ is the first order Bessel function of the first kind.
 
 \subsection{Setup} \label{sec:setup}
 
-The electric field on a flat mirror in the x-y plane due to a plane wave coming in at an angle $\alpha$ from normal (the z axis), inclined toward the x axis, is proportional to (CITE?):
+The electric field on a flat mirror in the x-y plane due to a plane wave coming in at an angle $\alpha$ from normal (the z axis), inclined toward the x axis, is proportional to:
 
 \begin{equation}
   e^{ikx\sin\left({\alpha}\right)}
 \end{equation}
 
-The contribution of one point on the mirror to the far field reflectance at some polar angle $\theta$ and azimuthal angle $\phi$ is just going to be that exponential multiplied by some phase shift.
+The contribution of one point on the mirror to the far field reflectance at some polar angle $\theta$ and azimuthal angle $\phi$ is that exponential multiplied by some phase shift.
 
 \subsection{Phase Shift} \label{sec:phase_shift}
-Since we're concerned with reflectance in the far field, all we need to determine is the phase shift relative to the origin. For some point $p$, we need to calculate the distance $d$ between that point and the origin \textit{along the direction of travel toward the point in the far field} defined by $\theta$ and $\phi$.
+
+The phase shift relative to the origin suffices since far-field reflectance is sought. For some point $p$, the distance $d$ between that point and the origin \textit{along the direction of travel toward the point in the far field} defined by $\theta$ and $\phi$ is needed.
 
 \begin{figure}
   \centerline{\includegraphics[width=\textwidth]{phase-length}}
@@ -156,7 +155,7 @@ The corresponding phase shift is thus:
   e^{ik\left(x_p(\sin{\alpha}-\sin{\theta}\cos{\phi})-y_p\sin{\theta}\sin{\phi}\right)}
 \end{equation}
 
-For simplicity, we'll define $a$ and $b$ as:
+For simplicity, $a$ and $b$ are defined as:
 
 \begin{equation}
   a = k\left(\sin{\alpha}-\sin{\theta}\cos{\phi}\right)
@@ -165,7 +164,7 @@ For simplicity, we'll define $a$ and $b$ as:
   b = -k\sin{\theta}\sin{\phi}
 \end{equation}
 
-\ldots so that we can represent the contribution from $p$ the far field as:
+\ldots so that the contribution from $p$ to the far field can be represented as:
 
 \begin{equation}
   e^{i(ax_p+by_p)}
@@ -173,27 +172,27 @@ For simplicity, we'll define $a$ and $b$ as:
 
 \subsection{Integrating} \label{sec:integrating}
 
-To find the total contribution to the far field from the entire mirror (of radius $R$) at some $\theta$ and $\phi$, we need to integrate this contribution over the entire surface:
+To find the total contribution to the far field from the entire mirror (of radius $R$) at some $\theta$ and $\phi$, this contribution must be integrated over the entire surface:
 
 \begin{equation}\label{eq:integral1}
   \int_0^{2\pi}\int_0^R e^{i(ar\cos(\Theta)+br\sin(\Theta))} rdrd\Theta
 \end{equation}
 
-\ldots where I subbed in $r\cos\Theta$ and $r\sin\Theta$ for $x$ and $y$ respectively.
+\ldots where $r\cos\Theta$ and $r\sin\Theta$ have been substituted for $x$ and $y$ respectively.
 
-Due to my weak math skills, I used Mathematica to integrate this [\ref{chap:integral}]. Turns out the solution is:
+The solution (see appendix \ref{chap:integral}) is:
 
 \begin{equation}\label{eq:expected_refl}
   \pi R^2 \pFq{0}{1}{}{2}{-\frac{R^2}{4}\left(a^2+b^2\right)}
 \end{equation}
 
-\ldots where ${}_0 F_1$ is the confluent hypergeometric limit function. Subbing $a$ and $b$ back in appropriately, and using $\frac{2\pi}{\lambda}$ in $k$'s stead, we get:
+\ldots where ${}_0 F_1$ is the confluent hypergeometric limit function. Subbing $a$ and $b$ back in appropriately, and using $\frac{2\pi}{\lambda}$ in $k$'s stead, gives:
 
 \begin{equation}
   \pi R^2 \pFq{0}{1}{}{2}{-\frac{\pi^2 R^2}{\lambda^2}\left(\sin^2\alpha+\sin^2\theta-2\sin\alpha\sin\theta\cos\phi\right)}
 \end{equation}
 
-As a quick check, when $\alpha$ is 0 (indicating normal incident light), this is proportional to equation \ref{eq:airy} as it should be [\ref{chap:airy_validation}].
+As a quick check, when $\alpha$ is 0 (indicating normal incident light), this is proportional to equation \ref{eq:airy} as it should be (see appendix \ref{chap:airy_validation}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -465,11 +464,11 @@ A parameter sweep over the following values was run, for a total of just over 50
   \item Gaussian beam cross section standard deviation: uniform beam, 1, 3, and 10 wavelengths
 \end{itemize}
 
-TODO: these aren't explained sufficiently.
+Mirror roughness was generated by creating a random surface, applying a Gaussian blur image filter with the specified standard deviation to it, and normalizing to the specified RMS roughness. The Gaussian beam indicates a beam of light with a radian Gaussian distribution centered on the middle of the mirror.
 
 Since mirrors that fit in the memory of a desktop yielded poor results [\ref{fig:sample_heatmap}], the largest mirror size that can fit on non-exotic supercomputer nodes was chosen: 100 rings. This gives an impedance matrix of just over 230 GB with double precision complex floats, allowing the simulation to just fit in 500 GB of memory when taking the LU preconditioner for the solver into account.
 
-The parameter sweep yielded no decent results. Figure [\ref{fig:100_rings}] shows a representative example. The uniform illuminating beam came was 30 degrees from normal, and the mirror has a radius of 10 wavelengths with RMS height 0.01 wavelengths and roughness standard deviation 3 wavelengths.
+The parameter sweep yielded no believable results. Figure [\ref{fig:100_rings}] shows a representative example. The uniform illuminating beam came was 30 degrees from normal, and the mirror has a radius of 10 wavelengths with RMS height 0.01 wavelengths and roughness standard deviation 3 wavelengths.
 
 \begin{figure}
   \centerline{\includegraphics[width=\textwidth]{100-ring-results}}
@@ -497,7 +496,7 @@ It seems likely that the results are poor due to the high condition numbers of t
 
 \chapter{Conclusion}\label{chap:conclusion}
 
-Didn't work. Here are some ideas for making it work (need to come up with some, I'm not sure what to try).
+A program simulating reflectance from a rough conducting surface was built, but proved inaccurate. The code may provide a useful starting point if the model can be tweaked to reduce the condition numbers of the impedance matrices used.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -517,9 +516,9 @@ Didn't work. Here are some ideas for making it work (need to come up with some, 
   
   
   
-  \chapter{Generating Nice Heatmaps}\label{chap:heatmap_code}
+  \chapter{Generating Heatmaps}\label{chap:heatmap_code}
   
-  Given a \texttt{Reflectance} object \texttt{R}, a nice heatmap of said reflectance can be generated with:
+  Given a \texttt{Reflectance} object \texttt{R}, a heatmap of said reflectance can be generated with:
   
   \begin{minted}{julia}
     heatmap((R.==0).*-max(R...)./2 + R, aspect_ratio=:equal,
@@ -530,7 +529,7 @@ Didn't work. Here are some ideas for making it work (need to come up with some, 
                                         background=false)
   \end{minted}
   
-  This was used to generate ONE? SEVERAL? figures in here.
+  This was used to generate several of the figures above.
   
   
   
