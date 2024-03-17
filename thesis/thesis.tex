@@ -213,7 +213,7 @@ The simulated mirror is a circle broken up into rings of equal annular width $a$
   \theta = 2\pi \left(\frac{2m+1}{12n+6} \pm \frac{1}{\left(12n+6\right)\sqrt{3}}\right)
 \end{equation}
 
-\ldots where $n$ is the ring index (starting from 0 at the center of the mirror) and $m$ is the patch index (starting at 0 and going to $6n-2$). The height $z$ at each point varies based on the mirror's roughness [\ref{fig:patches_points}].
+\ldots where $n$ is the ring index (starting from 0 at the center of the mirror) and $m$ is the patch index (starting at 0 and going to $6n-2$). The height $z$ at each point varies based on the mirror's roughness. See figure \ref{fig:patches_points} for an illustration.
 
 This spacing was chosen since it gives a fourth order error term [\ref{chap:circular_integration}].
 
@@ -245,7 +245,7 @@ At each of the points on the mirror the electric field is calculated as follows,
 
 \section{Impedance Matrix} \label{sec:impedance}
 
-The impedance matrix is a square matrix whose length along each axis is the number of points on the surface. There are two main sections, the part representing the interaction between different patches and the part representing the interaction of a patch with itself. The same-patch portion of the matrix consists of the 4x4 blocks along the main diagonal (one block for each patch), and the different-patch portion is the rest.
+The impedance matrix is a square matrix whose length along each axis is the number of points on the surface. There are two main sections, the part representing the interaction between different patches and the part representing the interaction of a patch with itself. The same-patch portion of the matrix consists of the 4x4 blocks along the main diagonal (one block for each patch), and the different-patch portion is the remainder.
 
 \subsection{Different patch} \label{sec:different_patch}
 
@@ -255,10 +255,11 @@ Since there's no chance of hitting a singularity when computing how two differen
   Z_{i,j}=\frac{\pi a}{12n_{j}+6}G\left(p_{i},p_{j}\right)r_{j}
 \end{equation}
 
-...where the first fraction is a Jacobian (see Circular Integration equation 22--I've subbed in $r_{j}$ for $a\left(n+\frac{1}{2}+\frac{1}{2\sqrt{3}}\right)$) and $G$ is the Green's function.
+...where the first fraction is a Jacobian (see Circular Integration [\ref{chap:circular_integration}] equation 22--I've subbed in $r_{j}$ for $a\left(n+\frac{1}{2}+\frac{1}{2\sqrt{3}}\right)$) and $G$ is the Green's function.
 
 \subsection{Same patch} \label{sec:same_patch}
-This is a good bit harder because of the need to deal with singularities. In essence, for each annular patch we want to transform it into a square, then split that square up into 4 triangles with a common vertex at the point in question, then reduce the order of the singularity at that point by stretching the point into a line to get a square over which to integrate. Since we want to use HCubature to calculate the integral, we'll turn the triangular portion of the patch into a square from $(0,0)$ to $(1,1)$ and make it a function of two variables, we'll say $u$ and $v$ (see Circular Intregration sections 5.6 and 5.7):
+
+This is harder due to the need to deal with singularities. In essence, each annular patch is transformed into a square, then split into 4 triangles with a common vertex at the point in question, then that point stretch into a line to turn each triangle into a square over which to integrate, reducing the order of the singularity. For numerical convenience, the triangular portion of the patch is turned into a square bounded by $(0,0)$ to $(1,1)$. Then a function of two variables, $u$ and $v$ below, can be integrated over this square (see Circular Integration [\ref{chap:circular_integration}] sections 5.6 and 5.7):
 
 \begin{equation}
   r\left(u,v\right)=B_{2,1}u+B_{2,2}uv\pm\frac{a}{2\sqrt{3}}+a\left(n+\frac{1}{2}\right)
@@ -268,47 +269,37 @@ This is a good bit harder because of the need to deal with singularities. In ess
   \theta\left(u,v\right)=\frac{2\pi}{a(6n+3)}\left(a\left(m+\frac{1}{2}\right)+B_{1,1}u+B_{1,2}uv\pm\frac{a}{2\sqrt{3}}\right)
 \end{equation}
 
-...where $B$ is a matrix that allows us to transform between a triangular
-piece of an annular patch and a square; in all there are 16 $B$ matrices,
-for 4 points with 4 corresponding triangles each (see Circular Integration
-subsection 5.5.1).
+...where $B$ is a matrix that allows transformation between a triangular piece of an annular patch and a square; in all there are 16 $B$ matrices, for 4 points with 4 corresponding triangles each (see Circular Integration [\ref{chap:circular_integration}] subsection 5.5.1).
 
-It's easy enough to get a function of $u$ and $v$ from the function
-of $r$, $\theta$, and $z$ that we want to integrate:
+It's easy enough to get a function of $u$ and $v$ from the function of $r$, $\theta$, and $z$ to be integrated:
 
 \begin{equation}
   f\left(u,v\right)=f\left(r\left(u,v\right),\theta\left(u,v\right),z\left(r\left(u,v\right),\theta\left(u,v\right)\right)\right)
 \end{equation}
 
-For utility we'll define a transform function, which takes a point
-($r$, $\theta$, and $z$, with associated $n$ and $p$) and a function
-of that point and gives us a function of $u$ and $v$:
+For utility a transform function is defined, taking a point ($r$, $\theta$, and $z$, with associated $n$ and $p$) and a function of that point, and yielding a function of $u$ and $v$:
 
 \begin{equation}
   T\left(f,p\right)=\left(u,v\right)\rightarrow r\left(u,v\right)f\left(u,v\right)
 \end{equation}
 
-With this transform function, we can calculate the integral of a function
-$f$ over a patch for a certain point $p$ ($H$ is hcubature):
+With this transform function, the integral of a function $f$ over a patch for a certain point $p$ can be calculated:
 
 \begin{equation}
   P\left(f,p\right)=\frac{2\pi}{a\left(6n+3\right)}\sum_{triangles}|det\left(B_{t}\right))|H\left(T\left(f,p\right)\right)_{0,0}^{1,1}
 \end{equation}
 
-The function that we want to look at is the Green's function of the
-point with another point:
+\ldots where $H$ is \texttt{HCubature} \cite{HCubature}.
+
+The desired function is the Green's function of the point with another point:
 
 \begin{equation} \label{eq:greens}
   G\left(p_{1},p_{2}\right)=\frac{e^{ik\rho}}{4\pi\rho}
 \end{equation}
 
-...where $k$ is the wave number and $\rho$ is the distance between
-the two points. We can set the point in that we're integrating around
-(since $P$ requires a function of one point) and call it $G^{*}\left(p_{2}\right)$.
+...where $k$ is the wave number and $\rho$ is the distance between the two points. The point to be integrated around can be fixed (since $P$ requires a function of one point) and the resultant function called $G^{*}\left(p_{2}\right)$.
 
-We use this to figure out what each element of the 4x4 block corresponding
-to the patch should be using the math outlined in Circular Integration
-section 6.1:
+This function can then be used to determine the elements of the 4x4 block representing this patch's interaction with itself (see Circular Integration [\ref{chap:circular_integration}] section 6.1):
 
 \begin{equation}
   K_{1}=P\left(G^{*},p\right)
@@ -326,7 +317,7 @@ section 6.1:
   K_{4}=P\left(G^{*}x_{p}y_{p},p\right)
 \end{equation}
 
-Now we can finally fill out this row of the block:
+One row of the 4x4 block is thus:
 
 \begin{equation}
   Z_{s,s'}=\frac{K_{1}}{4}+\frac{\sqrt{3}}{2a}\left(-K_{2}-K_{3}\right)+\frac{3}{a^{2}}K_{4}
@@ -344,9 +335,7 @@ Now we can finally fill out this row of the block:
   Z_{s,s'+3}=\frac{K_{1}}{4}+\frac{\sqrt{3}}{2a}\left(K_{2}-K_{3}\right)-\frac{3}{a^{2}}K_{4}
 \end{equation}
 
-\ldots where $s$ is the index of this point ($p$) and $s'$ is the first
-index of the other patch. We repeat this 4 times to fill in each 4x4
-block on the main diagonal.
+\ldots where $s$ is the index of this point ($p$) and $s'$ is the first index of the other patch.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
