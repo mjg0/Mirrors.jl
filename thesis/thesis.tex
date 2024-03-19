@@ -30,14 +30,14 @@
 
   \Year{2024}
 
-  \Title{Computationally Modeling Rough Mirrors}
+  \Title{Computationally Modeling Rough Circular Conducting Mirrors}
 
 \AdvisorTitle{Advisors}
   \Advisor{Steven Turley, David Allred}
 
   \Abstract{A program was created to model the effects of surface roughness on reflectance from circular conducting surfaces. Despite tests indicating a correct computational model, ill-conditioned surface impedance matrices mean that the results can't be trusted.}
 
- \Keywords{mirror, reflect, roughness}
+ \Keywords{optics, mirror, reflect, roughness}
 
 %% The members of your committee (masters only need A and B, PhD need all 4)
 %  \MemberA{Committee Member A}
@@ -77,13 +77,13 @@ Modeling reflectance from a conducting surface with roughness that's on the same
 
 \section{The Attempted Solution} \label{sec:attempted_solution}
 
-A \href{https://github.com/mjg0/Mirrors.jl}{Julia package} was written to calculate the far-field reflectance from a rough circular conducting mirror using the model below [\ref{chap:methods}]. It's available as in appendix \ref{chap:julia} and on GitHub at https://github.com/mjg0/Mirrors.jl.
+A \href{https://github.com/mjg0/Mirrors.jl}{Julia package} was written to calculate the far-field reflectance from a rough circular conducting mirror using the model in chapter \ref{chap:methods}. It is included as appendix \ref{chap:julia} and is available on GitHub at https://github.com/mjg0/Mirrors.jl.
 
 
 
 \section{Note on Plots} \label{sec:plots_note}
 
-Two types of plots will be used frequently here: plots of mirrors and plots of reflectance. Mirror plots are what one would expect: the mentioned parameter (e.g. height, electric field) is mapped on the shape of the mirror itself. Reflectance plots are \href{https://en.wikipedia.org/wiki/Azimuthal_equidistant_projection}{polar azimuthal equidistant projections} centered at normal to the mirror and extending to 90 degrees, much like a map of the northern hemisphere centered at the North Pole and extending to the equator, with the magnitude of reflected light corresponding to the intensity of the color.
+Two types of plots will be used frequently here: plots of mirrors and plots of reflectance. Mirror plots are what one would expect: the mentioned parameter (e.g. height, electric field) is plotted on the shape of the mirror itself. Reflectance plots are \href{https://en.wikipedia.org/wiki/Azimuthal_equidistant_projection}{polar azimuthal equidistant projections} centered at normal to the mirror and extending to 90 degrees, much like a map of the northern hemisphere centered at the North Pole and extending to the equator, with the magnitude of reflected light corresponding to the intensity of the color.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -97,17 +97,17 @@ Two types of plots will be used frequently here: plots of mirrors and plots of r
 
 \section{Modeling Expected Results} \label{sec:expected_results}
 
-It's vital to ensure that the program can correctly predict reflectance for a flat mirror--failing that, it can't be trusted to predict reflectance for rough surfaces. We thus need an equation that can predict far-field reflectance for an ideal mirror given an incident beam angle. Physical optics are used for simplicity.
+It's vital to ensure that the program can correctly predict reflectance for a flat mirror--failing that, it can't be trusted to predict reflectance for rough surfaces. An equation that can predict far-field reflectance for an ideal mirror given an incident beam angle is thus needed. Physical optics are used for simplicity.
 
 \subsection{Huygens Approximation} \label{subsec:huygens_approx}
 
-Since a finite, perfectly reflective surface is analogous to an aperture, the Huygens-Fresnel principle is used to approximate the behavior of circular mirrors. An easy test of the approximation will be its results when light strikes from normal to the surface: it should be proportional to the Airy pattern:
+Since a finite, perfectly reflective surface is analogous to an aperture, the Huygens-Fresnel principle is used to approximate the behavior of circular mirrors. An easy test of the approximation is the result when light strikes from normal to the surface--it should be proportional to the Airy pattern:
 
 \begin{equation}\label{eq:airy}
   \frac{\J_1(kR\sin(\theta))}{kR\sin(\theta)}
 \end{equation}
 
-\ldots where $k$ is the wave number, $\frac{2\pi}{\lambda}$ ($\lambda$ being the wavelength), $R$ is the radius of the aperture (mirror in our case), and $\theta$ is the angle at which the reflectance is measured. $J_1$ is the first order Bessel function of the first kind.
+\ldots where $k$ is the wave number, $R$ is the radius of the aperture (mirror in this case), and $\theta$ is the angle at which the reflectance is measured. $J_1$ is the first order Bessel function of the first kind.
 
 \subsection{Setup} \label{sec:setup}
 
@@ -129,7 +129,7 @@ The phase shift relative to the origin suffices since far-field reflectance is s
     $d$ is the phase shift of light coming from $p$ relative to light coming from the origin.}
 \end{figure}
 
-$d$ is given by dotting the unit vector $\hat{u}$ with $-\vec{p}$ [\ref{fig:phase_length}]. $\hat{u}$ is $\left(\sin{\theta}\cos{\phi},\sin{\theta}\sin{\phi},\cos{\theta}\right)$, so $d$ is:
+$d$ is given by dotting the unit vector $\hat{u}$ with $-\vec{p}$ (see figure \ref{fig:phase_length}). $\hat{u}$ is $\left(\sin{\theta}\cos{\phi},\sin{\theta}\sin{\phi},\cos{\theta}\right)$, so $d$ is:
 
 \begin{equation}
   -x_p\sin{\theta}\cos{\phi}-y_p\sin{\theta}\sin{\phi}
@@ -215,7 +215,7 @@ The simulated mirror is a circle broken up into rings of equal annular width $a$
 
 \ldots where $n$ is the ring index (starting from 0 at the center of the mirror) and $m$ is the patch index (starting at 0 and going to $6n-2$). The height $z$ at each point varies based on the mirror's roughness. See figure \ref{fig:patches_points} for an illustration.
 
-This spacing was chosen since it gives a fourth order error term [\ref{chap:circular_integration}].
+This spacing was chosen since it gives a fourth order error term (see appendix \ref{chap:circular_integration}).
 
 \begin{figure}
   \centerline{\includegraphics[width=\textwidth]{circular-grid-with-points}}
@@ -227,7 +227,7 @@ This spacing was chosen since it gives a fourth order error term [\ref{chap:circ
 
 \section{Electric Field at Surface}\label{chap:efield}
 
-At each of the points on the mirror the electric field is calculated as follows, assuming a plane wave of wavelenth $\lambda$ coming in at angle $\alpha$ from normal (direction of $z$) in the x-y plane:
+At each of the points on the mirror the electric field is calculated as follows, assuming a plane wave of wavelenth $\lambda$ coming in at angle $\alpha$ from normal (direction of $z$) in the x-z plane:
 
 \begin{equation}
   k_{x}=2\pi\lambda\cos\left(\alpha\right)
@@ -255,11 +255,11 @@ Since there's no chance of hitting a singularity when computing how two differen
   Z_{i,j}=\frac{\pi a}{12n_{j}+6}G\left(p_{i},p_{j}\right)r_{j}
 \end{equation}
 
-...where the first fraction is a Jacobian (see Circular Integration [\ref{chap:circular_integration}] equation 22--I've subbed in $r_{j}$ for $a\left(n+\frac{1}{2}+\frac{1}{2\sqrt{3}}\right)$) and $G$ is the Green's function.
+...where the first fraction is a Jacobian (see Circular Integration equation 22, appendix \ref{chap:circular_integration}--I've subbed in $r_{j}$ for $a\left(n+\frac{1}{2}+\frac{1}{2\sqrt{3}}\right)$) and $G$ is the Green's function.
 
 \subsection{Same patch} \label{sec:same_patch}
 
-This is harder due to the need to deal with singularities. In essence, each annular patch is transformed into a square, then split into 4 triangles with a common vertex at the point in question, then that point stretch into a line to turn each triangle into a square over which to integrate, reducing the order of the singularity. For numerical convenience, the triangular portion of the patch is turned into a square bounded by $(0,0)$ to $(1,1)$. Then a function of two variables, $u$ and $v$ below, can be integrated over this square (see Circular Integration [\ref{chap:circular_integration}] sections 5.6 and 5.7):
+This is harder due to the need to deal with singularities. In essence, each annular patch is transformed from an annular section into a square; that square is split into 4 triangles with a common vertex at one of the four points in the patch; each triangle is then stretched into a square, the common point going from a point to a line to reduce the order of the singularity. For numerical convenience, the triangular portion is transformed into a square bounded by $(0,0)$ to $(1,1)$. Then a function of two variables, $u$ and $v$ below, can be integrated over this square (see Circular Integration sections 5.6 and 5.7 in appendix \ref{chap:circular_integration}):
 
 \begin{equation}
   r\left(u,v\right)=B_{2,1}u+B_{2,2}uv\pm\frac{a}{2\sqrt{3}}+a\left(n+\frac{1}{2}\right)
@@ -269,7 +269,7 @@ This is harder due to the need to deal with singularities. In essence, each annu
   \theta\left(u,v\right)=\frac{2\pi}{a(6n+3)}\left(a\left(m+\frac{1}{2}\right)+B_{1,1}u+B_{1,2}uv\pm\frac{a}{2\sqrt{3}}\right)
 \end{equation}
 
-...where $B$ is a matrix that allows transformation between a triangular piece of an annular patch and a square; in all there are 16 $B$ matrices, for 4 points with 4 corresponding triangles each (see Circular Integration [\ref{chap:circular_integration}] subsection 5.5.1).
+...where $B$ is a matrix that allows transformation between a triangular piece of an annular patch and a square; in all there are 16 $B$ matrices, for 4 points with 4 corresponding triangles each (see Circular Integration subsection 5.5.1 in appendix \ref{chap:circular_integration}).
 
 It's easy enough to get a function of $u$ and $v$ from the function of $r$, $\theta$, and $z$ to be integrated:
 
@@ -299,7 +299,7 @@ The desired function is the Green's function of the point with another point:
 
 ...where $k$ is the wave number and $\rho$ is the distance between the two points. The point to be integrated around can be fixed (since $P$ requires a function of one point) and the resultant function called $G^{*}\left(p_{2}\right)$.
 
-This function can then be used to determine the elements of the 4x4 block representing this patch's interaction with itself (see Circular Integration [\ref{chap:circular_integration}] section 6.1):
+This function can then be used to determine the elements of the 4x4 block representing this patch's interaction with itself (see Circular Integration section 6.1 in appendix \ref{chap:circular_integration}):
 
 \begin{equation}
   K_{1}=P\left(G^{*},p\right)
@@ -347,7 +347,7 @@ One row of the 4x4 block is thus:
 
 \section{Surface Current} \label{sec:current}
 
-Since $Z \times E = J$ (where $Z$ is the impedance matrix, $E$ is the electric field, and $J$ is the surface current), once $Z$ and $E$ are determined $J$ can be computed as $Z\\E$. See Circular Integration section 6 (appendix \ref{chap:circular_integration}).
+Since $Z \times E = J$ (where $Z$ is the impedance matrix, $E$ is a vector of the electric field at each point on the mirror, and $J$ is the surface current at each point), once $Z$ and $E$ are determined $J$ can be computed as $Z \backslash E$. See Circular Integration section 6 (appendix \ref{chap:circular_integration}).
 
 
 
@@ -359,7 +359,7 @@ Given $J$, reflectance for a given $\theta$ (polar) and $\phi$ (azimuthal) is de
   R=\sum_{pts}J_{pt}e^{-ik\left(x\sin\left(\theta\right)\cos\left(\phi\right)+y\sin\left(\theta\right)\cos\left(\phi\right)+z\cos\left(\theta\right)\right)}
 \end{equation}
 
-The real part squared gives us the intensity at infinity for a certain angle.
+The real part squared yields the intensity at infinity at the given angle.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -371,7 +371,7 @@ The real part squared gives us the intensity at infinity for a certain angle.
 
 \section{The Code}\label{sec:code}
 
-The Julia package \href{https://github.com/mjg0/Mirrors.jl}{Mirrors.jl} (which is included as an appendix [\ref{chap:julia}]) was built and used for computation. Here's an example of its usage:
+The Julia package \href{https://github.com/mjg0/Mirrors.jl}{Mirrors.jl} (which is included as appendix \ref{chap:julia}) was built and used for computation. Here's an example of its usage:
 
 \begin{minted}{julia}
   using Mirrors, Plots
@@ -398,22 +398,22 @@ The Julia package \href{https://github.com/mjg0/Mirrors.jl}{Mirrors.jl} (which i
   heatmap(R)
 \end{minted}
 
-The resultant heatmap, with a few extra parameters for the \texttt{heatmap} call [\ref{chap:heatmap_code}], might look like figure \ref{fig:sample_heatmap}.
+The resultant heatmap, with a few extra parameters for the \texttt{heatmap} call (see appendix \ref{chap:heatmap_code}), might look like figure \ref{fig:sample_heatmap}.
 
 \begin{figure}
   \centerline{\includegraphics[width=.7\textwidth]{sample-reflectance}}
   \centerline{\includegraphics[width=.7\textwidth]{sample-reflectance-expected}}
   \caption[heatmap from the above sample code]{\label{fig:sample_heatmap}
-    heatmap of the reflectance found by the sample code above [\ref{sec:code}] above, expected reflectance below. as mentioned above [\ref{chap:plots_note}], it's an azimuthal equidistant projection of the far field reflectance centered normal to the mirror and extending 90 degrees in any direction.}
+    A heatmap of the reflectance found by the sample code above (section \ref{sec:code}), expected reflectance below. As mentioned in section \ref{sec:plots_note}, it's an azimuthal equidistant projection of the far field reflectance centered normal to the mirror and extending 90 degrees in any direction.}
 \end{figure}
 
 
 
 \subsection{Validation} \label{sec:validation}
 
-To ensure that the code works correctly, tests were written to ensure that any function can be integrated over the surface. The full tests are included in the appendices [\ref{runtests.jl}].
+To ensure that the code works correctly, tests were written to ensure that any function can be integrated over the surface. The full tests are included in appendix \ref{runtests.jl}.
 
-An impedance matrix can be created for an arbitrary function, not just Green's function [\ref{eq:greens}]. For example, to use the equation $f\left(r, \theta\right) = r^2$ for mirror \texttt{M}, one can create the impedance matrix thus:
+An impedance matrix can be created for an arbitrary function, not just Green's function (equation \ref{eq:greens}). For example, to use the equation $f\left(r, \theta\right) = r^2$ for mirror \texttt{M}, one can create the impedance matrix thus:
 
 \begin{minted}{julia}
   Z = impedance(M, (r1, θ1, z1, r2, θ2, z2)->r2^2)
@@ -451,16 +451,16 @@ A parameter sweep over the following values was run, for a total of just over 50
   \item Gaussian beam cross section standard deviation: uniform beam, 1, 3, and 10 wavelengths
 \end{itemize}
 
-Mirror roughness was generated by creating a random surface, applying a Gaussian blur image filter with the specified standard deviation to it, and normalizing to the specified RMS roughness. The Gaussian beam indicates a beam of light with a radian Gaussian distribution centered on the middle of the mirror.
+Mirror roughness was generated by creating a random surface, applying a Gaussian blur image filter with the specified standard deviation to it, and normalizing to the specified RMS roughness. A "Gaussian beam" is a beam of light with a radial Gaussian intensity distribution centered on the middle of the mirror.
 
-Since mirrors that fit in the memory of a personal computer yielded poor results [\ref{fig:sample_heatmap}], the largest mirror size that can fit on non-exotic supercomputer nodes was chosen: 100 rings. This gives an impedance matrix of just over 230 GB with double precision complex floats, allowing the simulation to just fit in 500 GB of memory when taking the LU preconditioner for the solver into account.
+Since mirrors that fit in the memory of a personal computer yielded poor results (see figure \ref{fig:sample_heatmap}), the largest mirror size that can fit on non-exotic supercomputer nodes was chosen: 100 rings. This gives an impedance matrix of just over 230 GB with double precision complex floats, allowing the simulation to just fit in 500 GB of memory when taking the preconditioner for the solver into account.
 
-The parameter sweep yielded no believable results. Figure [\ref{fig:100_rings}] shows a representative example. The uniform illuminating beam came from 30 degrees from normal, and the mirror has a radius of 10 wavelengths with RMS height 0.01 wavelengths and roughness standard deviation 3 wavelengths.
+The parameter sweep yielded no credible results. Figure \ref{fig:100_rings} shows a representative example. The uniform illuminating beam came from 30 degrees from normal, and the mirror had a radius of 10 wavelengths with RMS height 0.01 wavelengths and roughness standard deviation 3 wavelengths.
 
 \begin{figure}
   \centerline{\includegraphics[width=\textwidth]{100-ring-results}}
   \caption[Results with 100 rings]{\label{fig:100_rings}
-    Results with 100 rings}
+    Results with 100 rings; "Mirror" indicates height of the surface, units in wavelengths}
 \end{figure}
 
 Using more rings made very little difference. Figure [\ref{fig:30_rings}] shows the results of a simulation with identical parameters, save that 30 rings were used instead of 100.
@@ -468,10 +468,10 @@ Using more rings made very little difference. Figure [\ref{fig:30_rings}] shows 
 \begin{figure}
   \centerline{\includegraphics[width=\textwidth]{30-ring-results}}
   \caption[Results with 30 rings]{\label{fig:30_rings}
-    Results with 30 rings}
+    Results with 30 rings; "Mirror" indicates height of the surface, units in wavelengths}
 \end{figure}
 
-It seems likely that the results are poor due to the high condition numbers of the impedance matrices. For the simulation mentioned above, the condition numbers were 85.2 billion with 100 rings [\ref{fig:100_rings}] and 1.43 billion with 30 rings [\ref{fig:30_rings}].
+It seems likely that the results are poor due to the high condition numbers of the impedance matrices. For the simulation mentioned above, the condition numbers were 85.2 billion with 100 rings (figure \ref{fig:100_rings}) and 1.43 billion with 30 rings (figure \ref{fig:30_rings}).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -505,7 +505,7 @@ A program simulating reflectance from a rough conducting surface was built, but 
   
   \chapter{Generating Heatmaps}\label{chap:heatmap_code}
   
-  Given a \texttt{Reflectance} object \texttt{R}, a heatmap of said reflectance can be generated with:
+  Given a \texttt{Reflectance} object \texttt{R} from the \texttt{Mirrors} package, a heatmap of the reflectance can be generated with:
   
   \begin{minted}{julia}
     heatmap((R.==0).*-max(R...)./2 + R, aspect_ratio=:equal,
