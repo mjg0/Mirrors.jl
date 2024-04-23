@@ -21,32 +21,6 @@ using Test, Mirrors, Statistics, HCubature, LinearAlgebra
 
 
 
-    # Test that `noisy2dspline` works as expected
-    #@testset "rough mirror interpolation" begin
-    #    function spline_fft(spline)
-    #        xs, ys = spline.itp.ranges
-    #        z = reshape([spline(x, y) for x in xs for y in ys], (length(xs), length(ys)))
-    #        return fft(z, 2)
-    #    end
-    #    for len=(.63, 1.46, 4.26, 8.91), n=(36, 183, 694), rms=(0.061, 0.49, 1.52, 3.78), σ=(.29, 1.88, 7.24, 16.40)
-    #        spline = Mirror(len/2, n, rms, σ).z.itp
-    #        # make sure that grid is of the proper dimensions
-    #        xs = ys = range(-len/2, len/2, n)
-    #        @test length(xs) == length(ys) == n
-    #        @test xs[1] ≈ ys[1] ≈ -len / 2
-    #        @test xs[end] ≈ ys[end] ≈ len / 2
-    #        # check that RMS is properly calculated
-    #        z = reshape([spline(x, y) for x in xs for y in ys], (length(xs), length(ys)))
-    #        @test isapprox(rms, sqrt(sum(z.^2))/n, rtol=0.0001)
-    #        # check that average mirror height is very close to zero
-    #        @test isapprox(mean(z), 0, atol=1e-10)
-    #        # check that frequency follows an approximately Gaussian distribution
-    #        # TODO: fit the frequency curve to a Gaussian, make sure the residual is sane
-    #    end
-    #end
-
-
-
     # Test that `Patch` constructor fills `r` and `θ` correctly
     @testset "Patch" begin
         rplus, rminus = Mirrors.rplusminus(1.0, 0)

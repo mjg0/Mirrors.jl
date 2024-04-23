@@ -1,4 +1,4 @@
-\documentclass[etd,twoside,senior,noacknowledgments]{BYUPhys}
+\documentclass[etd,senior,noacknowledgments]{BYUPhys}
 
 \usepackage{pdfpages}
 \usepackage{listings}
@@ -26,25 +26,18 @@
         \endgroup
 }
 
-  \Author{Michael Greenburg}
+  \Author{Michael J. Greenburg}
 
   \Year{2024}
 
   \Title{Computationally Modeling Rough Circular Conducting Mirrors}
 
 \AdvisorTitle{Advisors}
-  \Advisor{Steven Turley, David Allred}
+  \Advisor{R. Steven Turley, David Allred}
 
-  \Abstract{A program was created to model the effects of surface roughness on reflectance from circular conducting surfaces. Despite tests indicating a correct computational model, ill-conditioned surface impedance matrices mean that the results can't be trusted.}
+  \Abstract{A program was created to model the effects of surface roughness on reflectance from circular conducting surfaces. Despite tests indicating a correct computational model, ill-conditioned surface impedance matrices mean that the results cannot be trusted.}
 
  \Keywords{optics, mirror, reflect, roughness}
-
-%% The members of your committee (masters only need A and B, PhD need all 4)
-%  \MemberA{Committee Member A}
-%  \MemberB{Committee Member B}
-%  \MemberC{Committee Member C}
-%  \MemberD{Committee Member D}
-% TODO: do I need any?
 
 \begin{document}
 
@@ -97,7 +90,7 @@ Two types of plots will be used frequently here: plots of mirrors and plots of r
 
 \section{Modeling Expected Results} \label{sec:expected_results}
 
-It's vital to ensure that the program can correctly predict reflectance for a flat mirror--failing that, it can't be trusted to predict reflectance for rough surfaces. An equation that can predict far-field reflectance for an ideal mirror given an incident beam angle is thus needed. Physical optics are used for simplicity.
+It is vital to ensure that the program can correctly predict reflectance for a flat mirror--failing that, it cannot be trusted to predict reflectance for rough surfaces. An equation that can predict far-field reflectance for an ideal mirror given an incident beam angle is thus needed. Physical optics are used for simplicity.
 
 \subsection{Huygens Approximation} \label{subsec:huygens_approx}
 
@@ -111,11 +104,15 @@ Since a finite, perfectly reflective surface is analogous to an aperture, the Hu
 
 \subsection{Setup} \label{sec:setup}
 
-The electric field on a flat mirror in the x-y plane due to a plane wave coming in at an angle $\alpha$ from normal (the z axis), inclined toward the x axis, is proportional to:
+The electric field on a flat mirror in the x-y plane due to a plane wave incident at angle $\alpha$ from normal (the z axis), inclined toward the x axis, is proportional to:
 
-\begin{equation}
+\begin{equation} \label{eq:efield}
   e^{ikx\sin\left({\alpha}\right)}
 \end{equation}
+
+\ldots at a given point in time chosen such that the electric field at the origin is zero.
+
+TODO: illustration, convince myself that it isn't cosine?
 
 The contribution of one point on the mirror to the far field reflectance at some polar angle $\theta$ and azimuthal angle $\phi$ is that exponential multiplied by some phase shift.
 
@@ -157,10 +154,10 @@ The corresponding phase shift is thus:
 
 For simplicity, $a$ and $b$ are defined as:
 
-\begin{equation}
+\begin{equation} \label{eq:a}
   a = k\left(\sin{\alpha}-\sin{\theta}\cos{\phi}\right)
 \end{equation}
-\begin{equation}
+\begin{equation} \label{eq:b}
   b = -k\sin{\theta}\sin{\phi}
 \end{equation}
 
@@ -178,7 +175,7 @@ To find the total contribution to the far field from the entire mirror (of radiu
   \int_0^{2\pi}\int_0^R e^{i(ar\cos(\Theta)+br\sin(\Theta))} rdrd\Theta
 \end{equation}
 
-\ldots where $r\cos\Theta$ and $r\sin\Theta$ have been substituted for $x$ and $y$ respectively.
+\ldots where $\Theta$ represents the angular coordinate of the mirror surface and $r\cos\Theta$ and $r\sin\Theta$ have been substituted for $x$ and $y$ respectively.
 
 The solution (see appendix \ref{chap:integral}) is:
 
@@ -186,7 +183,7 @@ The solution (see appendix \ref{chap:integral}) is:
   \pi R^2 \pFq{0}{1}{}{2}{-\frac{R^2}{4}\left(a^2+b^2\right)}
 \end{equation}
 
-\ldots where ${}_0 F_1$ is the confluent hypergeometric limit function. Subbing $a$ and $b$ back in appropriately, and using $\frac{2\pi}{\lambda}$ in $k$'s stead, gives:
+\ldots where ${}_0 F_1$ is the confluent hypergeometric limit function. Replacing $a$ and $b$ with equations \ref{eq:a} and \ref{eq:b} respectively, and using $\frac{2\pi}{\lambda}$ in $k$'s stead, gives:
 
 \begin{equation}
   \pi R^2 \pFq{0}{1}{}{2}{-\frac{\pi^2 R^2}{\lambda^2}\left(\sin^2\alpha+\sin^2\theta-2\sin\alpha\sin\theta\cos\phi\right)}
@@ -206,28 +203,28 @@ As a quick check, when $\alpha$ is 0 (indicating normal incident light), this is
 
 The simulated mirror is a circle broken up into rings of equal annular width $a$, each broken into patches of equal area $\frac{\pi a^2}{3}$. The first ring is broken into 3 patches, the second into 9, etc.; ring $n$ has $6n+3$ patches, and a mirror of $N$ rings has $3N^2$ total patches. Each patch has four points placed at:
 
-\begin{equation}
+\begin{equation} \label{eq:point_r}
   r = a \left(\frac{2n+1}{2} \pm \frac{1}{2\sqrt{3}}\right)
 \end{equation}
-\begin{equation}
+\begin{equation} \label{eq:point_th}
   \theta = 2\pi \left(\frac{2m+1}{12n+6} \pm \frac{1}{\left(12n+6\right)\sqrt{3}}\right)
 \end{equation}
 
-\ldots where $n$ is the ring index (starting from 0 at the center of the mirror) and $m$ is the patch index (starting at 0 and going to $6n-2$). The height $z$ at each point varies based on the mirror's roughness. See figure \ref{fig:patches_points} for an illustration.
+\ldots where $n$ is the ring index (starting from 0 at the center of the mirror) and $m$ is the patch index (starting at 0 and going to $6n-2$). The height $z$ at each point varies based on the mirror's roughness. See figure \ref{fig:patches_points} for an illustration, and appendix \ref{chap:circular_integration} for the rationale behind this model.
 
-This spacing was chosen since it gives a fourth order error term (see appendix \ref{chap:circular_integration}).
+This spacing was chosen since it gives a fourth-order error term (see appendix \ref{chap:circular_integration}).
 
 \begin{figure}
   \centerline{\includegraphics[width=\textwidth]{circular-grid-with-points}}
   \caption[Mirror patch boundaries and point locations]{\label{fig:patches_points}
-    The patch boundaries and points of a mirror with 3 rings.}
+    The patch boundaries and points of a mirror with 3 rings. Point locations are chosen according to equations \ref{eq:point_r} and \ref{eq:point_th}.}
 \end{figure}
 
 
 
-\section{Electric Field at Surface}\label{chap:efield}
+\section{Electric Field at Surface}\label{sec:efield}
 
-At each of the points on the mirror the electric field is calculated as follows, assuming a plane wave of wavelenth $\lambda$ coming in at angle $\alpha$ from normal (direction of $z$) in the x-z plane:
+At each of the points on the mirror the electric field is calculated as follows, assuming a plane wave of wavelenth $\lambda$ incident at angle $\alpha$ from normal (direction of $z$) in the x-z plane:
 
 \begin{equation}
   k_{x}=2\pi\lambda\cos\left(\alpha\right)
@@ -238,14 +235,20 @@ At each of the points on the mirror the electric field is calculated as follows,
 \end{equation}
 
 \begin{equation}
-  E_{pt}=e^{i\left(k_{x}x+k_{z}z\right)}
+  E=e^{i\left(k_{x}x+k_{z}z\right)}
 \end{equation}
+
+TODO: refer to the illustration I need to make to justify equation \ref{eq:efield}?
 
 
 
 \section{Impedance Matrix} \label{sec:impedance}
 
-The impedance matrix is a square matrix whose length along each axis is the number of points on the surface. There are two main sections, the part representing the interaction between different patches and the part representing the interaction of a patch with itself. The same-patch portion of the matrix consists of the 4x4 blocks along the main diagonal (one block for each patch), and the different-patch portion is the remainder.
+The impedance matrix is a square matrix that represents how each point on the mirror influences each other point when there is a current the mirror's surface. Its length along each axis is the number of points on the surface. There are two portions: the portion representing the interaction of each patch with itself, and the portion representing the interaction between different patches.
+
+The portion of the matrix that represents the interaction of each patch with itself consists of the 4x4 blocks along the main diagonal--the "first" patch's influence on itself is represented by cells $1,1$ through $4,4$, the second patch's by cells $5,5$ through $8,8$, etc.
+
+The rest of the cells in the matrix represent how each point, excepting points in the same patch, interacts with every other point. For example, cell $1,5$ represents how point 1 is influenced by point 5.
 
 \subsection{Different patch} \label{sec:different_patch}
 
@@ -255,11 +258,11 @@ Since there's no chance of hitting a singularity when computing how two differen
   Z_{i,j}=\frac{\pi a}{12n_{j}+6}G\left(p_{i},p_{j}\right)r_{j}
 \end{equation}
 
-...where the first fraction is a Jacobian (see Circular Integration equation 22, appendix \ref{chap:circular_integration}--I've subbed in $r_{j}$ for $a\left(n+\frac{1}{2}+\frac{1}{2\sqrt{3}}\right)$) and $G$ is the Green's function.
+...where the first fraction is a Jacobian (see Circular Integration equation 22, appendix \ref{chap:circular_integration} ($r_{j}$ has replaced $a\left(n+\frac{1}{2}+\frac{1}{2\sqrt{3}}\right)$) and $G$ is the Green's function).
 
 \subsection{Same patch} \label{sec:same_patch}
 
-This is harder due to the need to deal with singularities. In essence, each annular patch is transformed from an annular section into a square; that square is split into 4 triangles with a common vertex at one of the four points in the patch; each triangle is then stretched into a square, the common point going from a point to a line to reduce the order of the singularity. For numerical convenience, the triangular portion is transformed into a square bounded by $(0,0)$ to $(1,1)$. Then a function of two variables, $u$ and $v$ below, can be integrated over this square (see Circular Integration sections 5.6 and 5.7 in appendix \ref{chap:circular_integration}):
+This is harder due to the need to deal with singularities. In essence, each annular patch is transformed from an annular section into a square; that square is split into 4 triangles with a common vertex at one of the four points in the patch; each triangle is then stretched into a square, the common point going from a point to a line to reduce the order of the singularity (see Circular Integration section 5.3 in appendix \ref{chap:circular_integration}). For numerical convenience, the triangular portion is transformed into a square bounded by $(0,0)$ to $(1,1)$. Then a function of two variables, $u$ and $v$ below, can be integrated over this square (see Circular Integration sections 5.6 and 5.7 in appendix \ref{chap:circular_integration}):
 
 \begin{equation}
   r\left(u,v\right)=B_{2,1}u+B_{2,2}uv\pm\frac{a}{2\sqrt{3}}+a\left(n+\frac{1}{2}\right)
@@ -269,9 +272,9 @@ This is harder due to the need to deal with singularities. In essence, each annu
   \theta\left(u,v\right)=\frac{2\pi}{a(6n+3)}\left(a\left(m+\frac{1}{2}\right)+B_{1,1}u+B_{1,2}uv\pm\frac{a}{2\sqrt{3}}\right)
 \end{equation}
 
-...where $B$ is a matrix that allows transformation between a triangular piece of an annular patch and a square; in all there are 16 $B$ matrices, for 4 points with 4 corresponding triangles each (see Circular Integration subsection 5.5.1 in appendix \ref{chap:circular_integration}).
+...where $B$ is a matrix that allows transformation between a triangular piece of an annular patch and a square. In all there are 16 $B$ matrices, for 4 points with 4 corresponding triangles each (see Circular Integration subsection 5.5.1 in appendix \ref{chap:circular_integration}).
 
-It's easy enough to get a function of $u$ and $v$ from the function of $r$, $\theta$, and $z$ to be integrated:
+It is easy enough to get a function of $u$ and $v$ from the function of $r$, $\theta$, and $z$ to be integrated:
 
 \begin{equation}
   f\left(u,v\right)=f\left(r\left(u,v\right),\theta\left(u,v\right),z\left(r\left(u,v\right),\theta\left(u,v\right)\right)\right)
@@ -289,7 +292,7 @@ With this transform function, the integral of a function $f$ over a patch for a 
   P\left(f,p\right)=\frac{2\pi}{a\left(6n+3\right)}\sum_{triangles}|det\left(B_{t}\right))|H\left(T\left(f,p\right)\right)_{0,0}^{1,1}
 \end{equation}
 
-\ldots where $H$ is \texttt{HCubature} \cite{HCubature}.
+\ldots where $H$ computes the integral of $T\left(f,p\right)$ over the unit square \cite{HCubature}.
 
 The desired function is the Green's function of the point with another point:
 
@@ -335,7 +338,7 @@ One row of the 4x4 block is thus:
   Z_{s,s'+3}=\frac{K_{1}}{4}+\frac{\sqrt{3}}{2a}\left(K_{2}-K_{3}\right)-\frac{3}{a^{2}}K_{4}
 \end{equation}
 
-\ldots where $s$ is the index of this point ($p$) and $s'$ is the first index of the other patch.
+\ldots where $s$ is the index of this point ($p$) and $s'$ is the first index of the other point.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -347,7 +350,7 @@ One row of the 4x4 block is thus:
 
 \section{Surface Current} \label{sec:current}
 
-Since $Z \times E = J$ (where $Z$ is the impedance matrix, $E$ is a vector of the electric field at each point on the mirror, and $J$ is the surface current at each point), once $Z$ and $E$ are determined $J$ can be computed as $Z \backslash E$. See Circular Integration section 6 (appendix \ref{chap:circular_integration}).
+Since $Z \space E = J$ (where $Z$ is the impedance matrix, $E$ is a vector of the electric field at each point on the mirror, and $J$ is the surface current at each point), once $Z$ and $E$ are determined $J$ can be computed as $Z^{-1} \space E$. See Circular Integration section 6 (appendix \ref{chap:circular_integration}).
 
 
 
@@ -404,7 +407,7 @@ The resultant heatmap, with a few extra parameters for the \texttt{heatmap} call
   \centerline{\includegraphics[width=.7\textwidth]{sample-reflectance}}
   \centerline{\includegraphics[width=.7\textwidth]{sample-reflectance-expected}}
   \caption[heatmap from the above sample code]{\label{fig:sample_heatmap}
-    A heatmap of the reflectance found by the sample code above (section \ref{sec:code}), expected reflectance below. As mentioned in section \ref{sec:plots_note}, it's an azimuthal equidistant projection of the far field reflectance centered normal to the mirror and extending 90 degrees in any direction.}
+    A heatmap of the reflectance found by the sample code in section \ref{sec:code} plotted along with expected reflectance (calculated reflectance on top, expected reflectance on bottom). As mentioned in section \ref{sec:plots_note}, it is an azimuthal equidistant projection of the far field reflectance centered normal to the mirror and extending 90 degrees in any direction.}
 \end{figure}
 
 
@@ -419,7 +422,11 @@ An impedance matrix can be created for an arbitrary function, not just Green's f
   Z = impedance(M, (r1, θ1, z1, r2, θ2, z2)->r2^2)
 \end{minted}
 
-Once the impedance matrix has been filled, the sum of each row in the matrix should be the integral of the equation over the surface of the mirror--this corresponds to one point on each patch being integrated over the entire patch, for each patch in the mirror. In addition, the sum of the 4x4 singular blocks on the diagonals should be 4 times the integral, with an equal contribution from each row of each singular block. This is tested with the equations:
+Since the function used to generate the impedance matrix is in this case a function of only one point, each cell is simply the integral of that function over the portion of the mirror represented by the point corresponding to the column the cell occurs in. This means that the sum of a each row of the matrix should equal the integral of the function over the entire surface.
+
+The 4x4 blocks along the main diagonal representing the self-interaction of each patch (see section \ref{sec:impedance}) are similarly constrained: although the method of calculation differs, one row of such a 4x4 block should still sum to the integral of the function over the patch.
+
+Both sums of full rows and the sums of rows of the singular patch blocks are tested against the equations:
 
 $f\left(r, \theta\right) = 0.7$
 
@@ -441,26 +448,28 @@ $f\left(r, \theta\right) = 0.3 r^2 \cos\left(\theta\right)^2$
 
 \chapter{Results}\label{chap:results}
 
-A parameter sweep over the following values was run, for a total of just over 500 simulations:
+A mirror and its corresponding electric field, impedance matrix, surface current, and reflectance were calculated and plotted for every combination of the following values:
 
 \begin{itemize}
   \item Mirror radius: 3, 10, and 30 wavelengths
-  \item RMS mirror roughness: 0, 0.01, and 0.1 wavelengths
+  \item Mirror roughness RMS height: 0, 0.01, and 0.1 wavelengths
   \item Mirror roughness standard deviation: 1, 3, and 10 wavelengths
   \item Incident light angle, from normal (degrees): 0, 15, 30, 45, 60, 75
   \item Gaussian beam cross section standard deviation: uniform beam, 1, 3, and 10 wavelengths
 \end{itemize}
 
-Mirror roughness was generated by creating a random surface, applying a Gaussian blur image filter with the specified standard deviation to it, and normalizing to the specified RMS roughness. A "Gaussian beam" is a beam of light with a radial Gaussian intensity distribution centered on the middle of the mirror.
+Mirror roughness was generated by creating a random surface then applying a Gaussian blur image filter to that surface. The standard deviation mentioned is the standard deviation of the blur filter--higher standard deviations result in a smoother, more rolling surface. After the application of the blur filter, the values of the mirror were shifted to average zero, then the height of each point scaled such that the RMS height of the mirror was as mentioned.
+
+A "Gaussian beam" here refers to a beam of light with a radial Gaussian intensity distribution centered on the middle of the mirror.
 
 Since mirrors that fit in the memory of a personal computer yielded poor results (see figure \ref{fig:sample_heatmap}), the largest mirror size that can fit on non-exotic supercomputer nodes was chosen: 100 rings. This gives an impedance matrix of just over 230 GB with double precision complex floats, allowing the simulation to just fit in 500 GB of memory when taking the preconditioner for the solver into account.
 
-The parameter sweep yielded no credible results. Figure \ref{fig:100_rings} shows a representative example. The uniform illuminating beam came from 30 degrees from normal, and the mirror had a radius of 10 wavelengths with RMS height 0.01 wavelengths and roughness standard deviation 3 wavelengths.
+Not a single simulation yielded credible results, even those involving smooth mirrors. Figure \ref{fig:100_rings} shows a representative example.
 
 \begin{figure}
   \centerline{\includegraphics[width=\textwidth]{100-ring-results}}
   \caption[Results with 100 rings]{\label{fig:100_rings}
-    Results with 100 rings; "Mirror" indicates height of the surface, units in wavelengths}
+    Results given a mirror with 100 rings, a radius of 10 wavelengths, roughness with a standard deviation of 3 wavelengths and an RMS height of 0.01 wavelengths, and a uniform illuminating light beam emanating from 30 degrees from normal. "Mirror" shows the height of the surface, with the pink and cyan dots and their labels indicating the highest and lowest points on the mirror; units are wavelengths. "Electric Field" and "Surface Current" are mapped on the mirror's surface; white represents zero, blue represents negative values, and red represents positive values. "Reflectance", as mentioned in section \ref{sec:plots_note}, is an azimuthal polar equidistant projection plot of reflectance centered at normal to the mirror's surface and extending to grazing, with deeper reds representing higher intensities and white representing zero.}
 \end{figure}
 
 Using more rings made very little difference. Figure [\ref{fig:30_rings}] shows the results of a simulation with identical parameters, save that 30 rings were used instead of 100.
@@ -468,10 +477,10 @@ Using more rings made very little difference. Figure [\ref{fig:30_rings}] shows 
 \begin{figure}
   \centerline{\includegraphics[width=\textwidth]{30-ring-results}}
   \caption[Results with 30 rings]{\label{fig:30_rings}
-    Results with 30 rings; "Mirror" indicates height of the surface, units in wavelengths}
+    Results with 30 rings. Conventions are identical to those of figure \ref{fig:100_rings}.}
 \end{figure}
 
-It seems likely that the results are poor due to the high condition numbers of the impedance matrices. For the simulation mentioned above, the condition numbers were 85.2 billion with 100 rings (figure \ref{fig:100_rings}) and 1.43 billion with 30 rings (figure \ref{fig:30_rings}).
+It seems likely that the results are poor due to the poor conditioning of the impedance matrices: for the simulation mentioned above, the condition numbers were 85.2 billion with 100 rings (figure \ref{fig:100_rings}) and 1.43 billion with 30 rings (figure \ref{fig:30_rings}), destroying the credibility of the solutions even if they did look right \cite{KincaidCheney}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -491,7 +500,9 @@ A program simulating reflectance from a rough conducting surface was built, but 
 
 
 
-% APPENDICES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPENDICES ETC %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliography{references}
 
 \begin{appendices}
 
@@ -557,10 +568,6 @@ A program simulating reflectance from a rough conducting surface was built, but 
 
 
 
-
-% Make the bibliography.
-% Enter your references in the BibTex file "references.bib"
-\bibliography{references}
 
 % Make the index
 \printindex
