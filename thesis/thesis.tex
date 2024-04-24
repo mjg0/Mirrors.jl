@@ -107,14 +107,18 @@ Since a finite, perfectly reflective surface is analogous to an aperture, the Hu
 The electric field on a flat mirror in the x-y plane due to a plane wave incident at angle $\alpha$ from normal (the z axis), inclined toward the x axis, is proportional to:
 
 \begin{equation} \label{eq:efield}
-  e^{ikx\sin\left({\alpha}\right)}
+  e^{i\frac{2\pi}{\lambda}x\sin\left({\alpha}\right)}
 \end{equation}
 
-\ldots at a given point in time chosen such that the electric field at the origin is zero.
+\ldots where $\lambda$ is the wavelength of the incident light. See figure \ref{fig:efield_at_angle}.
 
-TODO: illustration, convince myself that it isn't cosine?
+\begin{figure}
+  \centerline{\includegraphics[width=\textwidth]{efield-at-angle}}
+  \caption[Plane wave incident on mirror surface at angle $\alpha$]{\label{fig:efield_at_angle}
+    Illustration of a plane wave originating at angle $\alpha$ from normal (the z axis) striking a mirror's surface (the x axis). Two planes along which the real part of the electric field is zero are shown as blue lines, with a single wavelength ($\lambda$) separating them. At this moment in time, the electric field at any point on the mirror surface is given by equation \ref{eq:efield}.}
+\end{figure}
 
-The contribution of one point on the mirror to the far field reflectance at some polar angle $\theta$ and azimuthal angle $\phi$ is that exponential multiplied by some phase shift.
+The contribution of one point on the mirror to the far field reflectance at some polar angle $\theta$ and azimuthal angle $\phi$ is equation \ref{eq:efield} multiplied by some phase shift.
 
 \subsection{Phase Shift} \label{sec:phase_shift}
 
@@ -224,21 +228,21 @@ This spacing was chosen since it gives a fourth-order error term (see appendix \
 
 \section{Electric Field at Surface}\label{sec:efield}
 
-At each of the points on the mirror the electric field is calculated as follows, assuming a plane wave of wavelenth $\lambda$ incident at angle $\alpha$ from normal (direction of $z$) in the x-z plane:
+At each of the points on the mirror the electric field is calculated as follows, assuming a plane wave of wavelength $\lambda$ incident at angle $\alpha$ from normal (direction of $z$) in the x-z plane:
 
 \begin{equation}
-  k_{x}=2\pi\lambda\cos\left(\alpha\right)
+  k_{x}=2\pi\lambda\sin\left(\alpha\right)
 \end{equation}
 
 \begin{equation}
-  k_{z}=-2\pi\lambda\sin\left(\alpha\right)
+  k_{z}=-2\pi\lambda\cos\left(\alpha\right)
 \end{equation}
 
 \begin{equation}
   E=e^{i\left(k_{x}x+k_{z}z\right)}
 \end{equation}
 
-TODO: refer to the illustration I need to make to justify equation \ref{eq:efield}?
+See figure \ref{fig:efield_at_angle} and equation \ref{eq:efield}; the additional z portion comes from the fact that a non-ideal mirror may have some height.
 
 
 
